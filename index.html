@@ -73,6 +73,21 @@
             display: block;
         }
 
+        /* LAYAR KUNCI PIN OVERLAY FULLSCREEN */
+        #pinLockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0d6efd;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
         /* STYLES KHUSUS MODO CETAK (PRINT) */
         @media print {
             body * {
@@ -96,13 +111,39 @@
 </head>
 <body>
 
+    <!-- OVERLAY LAYAR MASUK PIN KEAMANAN -->
+    <div id="pinLockOverlay" class="no-print">
+        <div class="card card-custom p-4 text-center bg-white w-100 shadow-lg" style="max-width: 360px;">
+            <img src="logoyokmenabung.png" alt="Logo" width="64" height="64" class="mx-auto mb-2 rounded-circle border p-1 bg-light" onerror="this.src='https://via.placeholder.com/64?text=YM'">
+            <h5 class="fw-bold text-dark m-0">Yok Menabung</h5>
+            <p class="small text-muted mb-3">Masukkan PIN untuk membuka aplikasi</p>
+
+            <form id="formPinLock" onsubmit="verifyPin(event)">
+                <div class="mb-3">
+                    <input type="password" id="inputPinLock" class="form-control form-control-lg text-center fw-bold" placeholder="Masukkan PIN" required autocomplete="off">
+                    <div id="pinErrorMsg" class="small text-danger mt-1 d-none">PIN salah! Silakan coba lagi.</div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2">
+                    <i class="bi bi-unlock-fill me-1"></i> Masuk Aplikasi
+                </button>
+            </form>
+
+            <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted" onclick="openModalLupaPin()">
+                Lupa PIN?
+            </button>
+            <div class="mt-3 pt-2 border-top">
+                <small class="text-secondary style=font-size:0.7rem;">Powered by Ari GPM</small>
+            </div>
+        </div>
+    </div>
+
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand navbar-dark bg-primary fixed-top top-navbar px-3 no-print">
         <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.3</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.4</span>
             </a>
             <button id="pwaInstallBtn" class="btn btn-warning btn-sm fw-bold d-none align-items-center gap-1 shadow-sm">
                 <i class="bi bi-download"></i> Instal App
@@ -193,6 +234,15 @@
         <section id="sec-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Data</h5>
 
+            <!-- Pengaturan Keamanan PIN -->
+            <div class="card card-custom p-3 mb-3 bg-white">
+                <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i> Keamanan PIN</h6>
+                <p class="small text-muted mb-3">Ubah PIN aplikasi dan pertanyaan keamanan pemulihan.</p>
+                <button class="btn btn-outline-primary btn-sm w-100" onclick="openModalUbahPin()">
+                    <i class="bi bi-key me-1"></i> Ubah PIN & Pertanyaan Keamanan
+                </button>
+            </div>
+
             <!-- Backup & Restore Card -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-database-down me-2 text-primary"></i> Backup & Restore</h6>
@@ -223,7 +273,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.3</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.4</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -253,6 +303,74 @@
     <div id="printableCardArea" class="d-none"></div>
 
     <!-- ================= MODAL DIALOGS (ANTI-POPUP) ================= -->
+
+    <!-- Modal Lupa PIN -->
+    <div class="modal fade no-print" id="modalLupaPin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-1"></i> Pemulihan PIN Keamanan</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formLupaPin" onsubmit="processLupaPin(event)">
+                        <div class="mb-3 p-2 bg-light border rounded">
+                            <label class="form-label small fw-bold text-muted d-block mb-1">Pertanyaan Keamanan Pengaman:</label>
+                            <span id="txtLupaPinQuestion" class="fw-semibold text-dark small">Siapa nama pembuat aplikasi ini?</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Jawaban Keamanan</label>
+                            <input type="text" id="inputJawabanKeamanan" class="form-control" placeholder="Jawaban Anda" required>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">PIN Baru</label>
+                            <input type="password" id="inputPinBaruLupa" class="form-control" placeholder="Masukkan PIN baru" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Konfirmasi PIN Baru</label>
+                            <input type="password" id="inputKonfirmasiPinBaruLupa" class="form-control" placeholder="Ulangi PIN baru" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Reset & Buat PIN Baru</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ubah PIN & Pertanyaan Keamanan (dari Tab Pengaturan) -->
+    <div class="modal fade no-print" id="modalUbahPin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold">Ubah PIN & Pertanyaan Keamanan</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formUbahPin" onsubmit="processUbahPin(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">PIN Saat Ini</label>
+                            <input type="password" id="inputPinLama" class="form-control" placeholder="Masukkan PIN lama" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">PIN Baru</label>
+                            <input type="password" id="inputPinBaruSet" class="form-control" placeholder="Masukkan PIN baru" required>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Pertanyaan Keamanan Baru</label>
+                            <input type="text" id="inputQuestionSet" class="form-control" placeholder="Contoh: Nama hewan peliharaan pertama?" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Jawaban Keamanan Baru</label>
+                            <input type="text" id="inputAnswerSet" class="form-control" placeholder="Jawaban rahasia Anda" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Perubahan PIN</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Kustom Alert / Info -->
     <div class="modal fade no-print" id="customAlertModal" tabindex="-1" aria-hidden="true">
@@ -285,7 +403,7 @@
         </div>
     </div>
 
-    <!-- Modal Form Tambah / Edit Siswa (Lengkap dengan Live Auto QR Preview) -->
+    <!-- Modal Form Tambah / Edit Siswa -->
     <div class="modal fade no-print" id="modalSiswa" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -431,6 +549,99 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // --- SECURITY & PIN MANAGEMENT ---
+        const DEFAULT_PIN = "kamunanyak";
+        const DEFAULT_SEC_QUESTION = "Siapa nama pembuat aplikasi ini?";
+        const DEFAULT_SEC_ANSWER = "ari gpm";
+
+        let appPin = localStorage.getItem('ym_pin') || DEFAULT_PIN;
+        let secQuestion = localStorage.getItem('ym_sec_q') || DEFAULT_SEC_QUESTION;
+        let secAnswer = localStorage.getItem('ym_sec_a') || DEFAULT_SEC_ANSWER;
+
+        function verifyPin(e) {
+            e.preventDefault();
+            const inputPin = document.getElementById('inputPinLock').value.trim();
+            const errEl = document.getElementById('pinErrorMsg');
+
+            if (inputPin === appPin) {
+                document.getElementById('pinLockOverlay').style.display = 'none';
+                document.getElementById('inputPinLock').value = '';
+                errEl.classList.add('d-none');
+            } else {
+                errEl.classList.remove('d-none');
+            }
+        }
+
+        function openModalLupaPin() {
+            document.getElementById('txtLupaPinQuestion').innerText = secQuestion;
+            document.getElementById('formLupaPin').reset();
+            new bootstrap.Modal(document.getElementById('modalLupaPin')).show();
+        }
+
+        function processLupaPin(e) {
+            e.preventDefault();
+            const inputAnswer = document.getElementById('inputJawabanKeamanan').value.trim().toLowerCase();
+            const newPin = document.getElementById('inputPinBaruLupa').value.trim();
+            const confirmPin = document.getElementById('inputKonfirmasiPinBaruLupa').value.trim();
+
+            if (inputAnswer !== secAnswer.toLowerCase()) {
+                showAlert('Jawaban keamanan tidak cocok!', 'Gagal Reset', 'bi-x-circle text-danger');
+                return;
+            }
+
+            if (newPin.length < 4) {
+                showAlert('PIN baru minimal harus 4 karakter!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                showAlert('Konfirmasi PIN baru tidak sesuai!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
+                return;
+            }
+
+            // Simpan PIN Baru
+            appPin = newPin;
+            localStorage.setItem('ym_pin', appPin);
+
+            bootstrap.Modal.getInstance(document.getElementById('modalLupaPin')).hide();
+            showAlert('PIN berhasil diubah! Silakan masuk dengan PIN baru Anda.', 'Sukses', 'bi-check-circle text-success');
+        }
+
+        function openModalUbahPin() {
+            document.getElementById('formUbahPin').reset();
+            document.getElementById('inputQuestionSet').value = secQuestion;
+            new bootstrap.Modal(document.getElementById('modalUbahPin')).show();
+        }
+
+        function processUbahPin(e) {
+            e.preventDefault();
+            const pinLama = document.getElementById('inputPinLama').value.trim();
+            const pinBaru = document.getElementById('inputPinBaruSet').value.trim();
+            const newQuestion = document.getElementById('inputQuestionSet').value.trim();
+            const newAnswer = document.getElementById('inputAnswerSet').value.trim();
+
+            if (pinLama !== appPin) {
+                showAlert('PIN lama Anda tidak sesuai!', 'Gagal', 'bi-x-circle text-danger');
+                return;
+            }
+
+            if (pinBaru.length < 4) {
+                showAlert('PIN baru minimal 4 karakter!', 'Gagal', 'bi-exclamation-circle text-warning');
+                return;
+            }
+
+            appPin = pinBaru;
+            secQuestion = newQuestion;
+            secAnswer = newAnswer;
+
+            localStorage.setItem('ym_pin', appPin);
+            localStorage.setItem('ym_sec_q', secQuestion);
+            localStorage.setItem('ym_sec_a', secAnswer);
+
+            bootstrap.Modal.getInstance(document.getElementById('modalUbahPin')).hide();
+            showAlert('PIN dan Pertanyaan Keamanan berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+        }
+
         // --- DATA STORE (LOCALSTORAGE 100%) ---
         let state = {
             siswa: JSON.parse(localStorage.getItem('ym_siswa')) || [],
@@ -808,7 +1019,15 @@
 
         // --- BACKUP & RESTORE JSON ---
         function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const backupPayload = {
+                state: state,
+                security: {
+                    pin: appPin,
+                    sec_q: secQuestion,
+                    sec_a: secAnswer
+                }
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
             const downloadAnchor = document.createElement('a');
             const dateStr = new Date().toISOString().split('T')[0];
             downloadAnchor.setAttribute("href", dataStr);
@@ -826,9 +1045,20 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (imported.siswa && imported.transaksi) {
+                    // Support baik format backup lama maupun baru
+                    const importedState = imported.state || imported;
+                    
+                    if (importedState.siswa && importedState.transaksi) {
                         showConfirm('Aksi ini akan menggantikan seluruh data saat ini. Lanjutkan?', function() {
-                            state = imported;
+                            state = importedState;
+                            if (imported.security) {
+                                appPin = imported.security.pin || appPin;
+                                secQuestion = imported.security.sec_q || secQuestion;
+                                secAnswer = imported.security.sec_a || secAnswer;
+                                localStorage.setItem('ym_pin', appPin);
+                                localStorage.setItem('ym_sec_q', secQuestion);
+                                localStorage.setItem('ym_sec_a', secAnswer);
+                            }
                             saveData();
                             showAlert('Data berhasil dipulihkan dari backup!', 'Import Berhasil', 'bi-check-circle text-success');
                             switchTab('sec-beranda');
