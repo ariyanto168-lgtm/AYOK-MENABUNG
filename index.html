@@ -27,7 +27,7 @@
             transition: background-color 0.3s ease;
         }
 
-        /* TEMA & MOTIF BACKGROUND CERIA (OFFLINE SVG DATA-URI) */
+        /* TEMA & MOTIF BACKGROUND CERIA */
         body.theme-default {
             background-color: #f8f9fa;
             background-image: none;
@@ -99,7 +99,7 @@
             display: block;
         }
 
-        /* LAYAR KUNCI OVERLAY */
+        /* LAYAR KUNCI OVERLAY INTEGRATED */
         #pinLockOverlay {
             position: fixed;
             top: 0;
@@ -107,20 +107,12 @@
             right: 0;
             bottom: 0;
             background: #0d6efd;
-            z-index: 1030;
+            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
             overflow-y: auto;
-        }
-
-        /* MODAL BOOTSTRAP ATAS OVERLAY */
-        .modal {
-            z-index: 1060 !important;
-        }
-        .modal-backdrop {
-            z-index: 1050 !important;
         }
 
         .btn-action-touch {
@@ -138,7 +130,7 @@
             box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
         }
 
-        /* STYLES MODO CETAK (PRINT) */
+        /* STYLES PRINT */
         @media print {
             body * {
                 visibility: hidden;
@@ -161,10 +153,10 @@
 </head>
 <body class="theme-default">
 
-    <!-- OVERLAY LAYAR MASUK PIN KEAMANAN -->
+    <!-- OVERLAY LAYAR KUNCI & PEMULIHAN PIN TERINTEGRASI (ANTI MACET) -->
     <div id="pinLockOverlay" class="no-print">
         <div class="card card-custom p-4 text-center bg-white w-100 shadow-lg" style="max-width: 360px;">
-            <img src="logoyokmenabung.png" alt="Logo" width="64" height="64" class="mx-auto mb-2 rounded-circle border p-1 bg-light" onerror="this.src='https://via.placeholder.com/64?text=YM'">
+            <img src="logoyokmenabung.png" alt="Logo" width="60" height="60" class="mx-auto mb-2 rounded-circle border p-1 bg-light" onerror="this.src='https://via.placeholder.com/60?text=YM'">
             <h5 class="fw-bold text-dark m-0">Yok Menabung</h5>
             
             <!-- Anti-Phishing Security Badge -->
@@ -174,21 +166,56 @@
                 </span>
             </div>
 
-            <p class="small text-muted mb-2">Masukkan PIN untuk membuka aplikasi</p>
-
-            <form id="formPinLock" onsubmit="verifyPin(event)">
-                <div class="mb-3">
-                    <input type="password" id="inputPinLock" class="form-control form-control-lg text-center fw-bold" placeholder="Masukkan PIN" required autocomplete="off">
-                    <div id="pinErrorMsg" class="small text-danger mt-1 d-none">PIN salah! Silakan coba lagi.</div>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2 btn-action-touch">
-                    <i class="bi bi-unlock-fill me-1"></i> Masuk Aplikasi
+            <!-- VIEW 1: MASUKKAN PIN -->
+            <div id="boxPinLogin">
+                <p class="small text-muted mb-2">Masukkan PIN untuk membuka aplikasi</p>
+                <form id="formPinLock" onsubmit="verifyPin(event)">
+                    <div class="mb-3">
+                        <input type="password" id="inputPinLock" class="form-control form-control-lg text-center fw-bold" placeholder="Masukkan PIN" required autocomplete="off">
+                        <div id="pinErrorMsg" class="small text-danger mt-1 d-none">PIN salah! Silakan coba lagi.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2 btn-action-touch">
+                        <i class="bi bi-unlock-fill me-1"></i> Masuk Aplikasi
+                    </button>
+                </form>
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-primary fw-semibold" onclick="showBoxLupaPin()">
+                    <i class="bi bi-question-circle me-1"></i> Lupa PIN?
                 </button>
-            </form>
+            </div>
 
-            <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted" onclick="openModalLupaPin()">
-                Lupa PIN?
-            </button>
+            <!-- VIEW 2: PERTANYAAN KEAMANAN (LUPA PIN) -->
+            <div id="boxPinForgot" class="d-none">
+                <div class="alert alert-light border text-start p-2 mb-3">
+                    <small class="text-muted d-block fw-bold" style="font-size:0.7rem;">Pertanyaan Keamanan Pengaman:</small>
+                    <span id="txtLupaPinQuestionBox" class="fw-bold text-dark small">Siapa nama pembuat aplikasi ini?</span>
+                </div>
+                
+                <form id="formLupaPinBox" onsubmit="processLupaPinBox(event)">
+                    <div class="mb-3 text-start">
+                        <label class="form-label small fw-semibold text-muted">Jawaban Anda</label>
+                        <input type="text" id="inputJawabanBox" class="form-control form-control-lg" placeholder="Masukkan jawaban" required autocomplete="off">
+                        <div id="forgotErrorMsg" class="small text-danger mt-1 d-none">Jawaban tidak cocok!</div>
+                    </div>
+
+                    <!-- Result Box if correct -->
+                    <div id="forgotResultBox" class="p-2 bg-success-subtle border border-success rounded text-success mb-3 d-none">
+                        <small class="d-block text-muted style=font-size:0.7rem;">PIN Anda adalah:</small>
+                        <h4 class="fw-bold my-1 text-dark" id="txtFoundPin">kamunanyak</h4>
+                        <button type="button" class="btn btn-success btn-sm w-100 rounded-pill mt-2 fw-bold" onclick="autoLoginWithFoundPin()">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Langsung Masuk
+                        </button>
+                    </div>
+
+                    <button type="submit" id="btnVerifyForgot" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2 btn-action-touch">
+                        <i class="bi bi-shield-check me-1"></i> Verifikasi Jawaban
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-secondary" onclick="showBoxPinLogin()">
+                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Masuk PIN
+                </button>
+            </div>
+
             <div class="mt-3 pt-2 border-top">
                 <small class="text-secondary" style="font-size:0.7rem;">Powered by Ari GPM</small>
             </div>
@@ -201,7 +228,7 @@
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.8</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.9</span>
             </a>
             <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-outline-light btn-sm px-2 py-1" onclick="lockAppManually()" title="Kunci Aplikasi">
@@ -399,7 +426,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.8</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.9</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -457,33 +484,6 @@
                             <input type="text" id="inputThnSekolah" class="form-control" placeholder="Contoh: 2026/2027">
                         </div>
                         <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Identitas Sekolah</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Lupa PIN -->
-    <div class="modal fade no-print" id="modalLupaPin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-question-circle me-1"></i> Pertanyaan Keamanan</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formLupaPin" onsubmit="processLupaPin(event)">
-                        <div class="mb-3 p-3 bg-light border rounded">
-                            <label class="form-label small fw-bold text-muted d-block mb-1">Pertanyaan Keamanan Pengaman:</label>
-                            <span id="txtLupaPinQuestion" class="fw-bold text-dark fs-6">Siapa nama pembuat aplikasi ini?</span>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Jawaban Anda</label>
-                            <input type="text" id="inputJawabanKeamanan" class="form-control form-control-lg" placeholder="Masukkan jawaban" required autocomplete="off">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch fw-bold">
-                            <i class="bi bi-shield-check me-1"></i> Verifikasi & Tampilkan PIN
-                        </button>
                     </form>
                 </div>
             </div>
@@ -722,3 +722,913 @@
                         <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Perubahan</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pemindai QR Code Kamera -->
+    <div class="modal fade no-print" id="modalQRScanner" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-qr-code-scan me-1"></i> Pemindai QR NISN Siswa</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopQRScanner()"></button>
+                </div>
+                <div class="modal-body text-center p-2">
+                    <div id="reader"></div>
+                    <small class="text-muted mt-2 d-block">Arahkan kamera ke QR Code NISN Siswa</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // --- 1. ANTI-PHISHING & ANTI-FRAMEJACKING ---
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+
+        // --- 2. THEME BACKGROUND PALETTE LOGIC ---
+        let currentTheme = localStorage.getItem('ym_bg_theme') || 'theme-default';
+
+        function selectTheme(themeName) {
+            currentTheme = themeName;
+            localStorage.setItem('ym_bg_theme', currentTheme);
+            applyThemeUI();
+        }
+
+        function applyThemeUI() {
+            document.body.className = currentTheme;
+            document.querySelectorAll('.theme-card-option').forEach(el => el.classList.remove('active'));
+            const activeOpt = document.getElementById(`opt-${currentTheme}`);
+            if (activeOpt) activeOpt.classList.add('active');
+        }
+
+        // --- 3. IDENTITAS SEKOLAH STORE ---
+        let sekolah = JSON.parse(localStorage.getItem('ym_sekolah')) || {
+            nama: "SD Negeri 01 Cerdas",
+            npsn: "12345678",
+            alamat: "Jl. Pendidikan No. 1",
+            tahunAjaran: "2026/2027"
+        };
+
+        function saveSekolah() {
+            localStorage.setItem('ym_sekolah', JSON.stringify(sekolah));
+            renderIdentitasSekolah();
+        }
+
+        function renderIdentitasSekolah() {
+            document.getElementById('dashNamaSekolah').innerText = sekolah.nama || 'Nama Sekolah Belum Diatur';
+            
+            let npsnTxt = sekolah.npsn ? `NPSN: ${sekolah.npsn}` : 'NPSN: -';
+            let alamatTxt = sekolah.alamat ? ` | ${sekolah.alamat}` : '';
+            document.getElementById('dashNpsnSekolah').innerText = `${npsnTxt}${alamatTxt}`;
+            document.getElementById('dashThnSekolah').innerText = `TA ${sekolah.tahunAjaran || '-'}`;
+        }
+
+        function openModalEditSekolah() {
+            document.getElementById('inputNamaSekolah').value = sekolah.nama || '';
+            document.getElementById('inputNpsnSekolah').value = sekolah.npsn || '';
+            document.getElementById('inputAlamatSekolah').value = sekolah.alamat || '';
+            document.getElementById('inputThnSekolah').value = sekolah.tahunAjaran || '';
+            new bootstrap.Modal(document.getElementById('modalSekolah')).show();
+        }
+
+        function processSaveSekolah(e) {
+            e.preventDefault();
+            sekolah.nama = document.getElementById('inputNamaSekolah').value.trim();
+            sekolah.npsn = document.getElementById('inputNpsnSekolah').value.trim();
+            sekolah.alamat = document.getElementById('inputAlamatSekolah').value.trim();
+            sekolah.tahunAjaran = document.getElementById('inputThnSekolah').value.trim();
+
+            saveSekolah();
+            bootstrap.Modal.getInstance(document.getElementById('modalSekolah')).hide();
+            showAlert('Identitas sekolah berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+        }
+
+        // --- 4. SECURITY & PIN MANAGEMENT (FULLY INTEGRATED IN-CARD) ---
+        const DEFAULT_PIN = "kamunanyak";
+        const DEFAULT_SEC_QUESTION = "Siapa nama pembuat aplikasi ini?";
+        const DEFAULT_SEC_ANSWER = "ari gpm";
+        const DEFAULT_SEC_PHRASE = "Tabungan Resmi Siswa";
+
+        let appPin = localStorage.getItem('ym_pin') || DEFAULT_PIN;
+        let secQuestion = localStorage.getItem('ym_sec_q') || DEFAULT_SEC_QUESTION;
+        let secAnswer = localStorage.getItem('ym_sec_a') || DEFAULT_SEC_ANSWER;
+        let secPhrase = localStorage.getItem('ym_sec_phrase') || DEFAULT_SEC_PHRASE;
+
+        function updateSecurityBadgeUI() {
+            document.getElementById('secPhraseDisplay').innerText = secPhrase;
+        }
+
+        function verifyPin(e) {
+            if (e) e.preventDefault();
+            const inputPin = document.getElementById('inputPinLock').value.trim();
+            const errEl = document.getElementById('pinErrorMsg');
+
+            if (inputPin === appPin) {
+                document.getElementById('pinLockOverlay').style.display = 'none';
+                document.getElementById('inputPinLock').value = '';
+                errEl.classList.add('d-none');
+                startIdleTimer();
+            } else {
+                errEl.innerText = 'PIN salah! Silakan coba lagi.';
+                errEl.className = 'small text-danger mt-1';
+                errEl.classList.remove('d-none');
+            }
+        }
+
+        function lockAppManually(reason = '') {
+            stopIdleTimer();
+            stopQRScanner();
+            showBoxPinLogin();
+            const overlay = document.getElementById('pinLockOverlay');
+            overlay.style.display = 'flex';
+            document.getElementById('inputPinLock').value = '';
+            updateSecurityBadgeUI();
+
+            const errEl = document.getElementById('pinErrorMsg');
+            if (reason) {
+                errEl.innerText = reason;
+                errEl.className = 'small text-warning mt-1 fw-bold';
+                errEl.classList.remove('d-none');
+            } else {
+                errEl.classList.add('d-none');
+            }
+        }
+
+        // --- TOGGLE BOX LUPA PIN TANPA MODAL ---
+        function showBoxLupaPin() {
+            document.getElementById('txtLupaPinQuestionBox').innerText = secQuestion;
+            document.getElementById('inputJawabanBox').value = '';
+            document.getElementById('forgotErrorMsg').classList.add('d-none');
+            document.getElementById('forgotResultBox').classList.add('d-none');
+            document.getElementById('btnVerifyForgot').classList.remove('d-none');
+
+            document.getElementById('boxPinLogin').classList.add('d-none');
+            document.getElementById('boxPinForgot').classList.remove('d-none');
+        }
+
+        function showBoxPinLogin() {
+            document.getElementById('boxPinForgot').classList.add('d-none');
+            document.getElementById('boxPinLogin').classList.remove('d-none');
+            document.getElementById('pinErrorMsg').classList.add('d-none');
+        }
+
+        function processLupaPinBox(e) {
+            e.preventDefault();
+            const inputAnswer = document.getElementById('inputJawabanBox').value.trim().toLowerCase();
+            const errEl = document.getElementById('forgotErrorMsg');
+            const resultBox = document.getElementById('forgotResultBox');
+            const btnVerify = document.getElementById('btnVerifyForgot');
+
+            if (inputAnswer !== secAnswer.toLowerCase()) {
+                errEl.innerText = 'Jawaban keamanan tidak cocok!';
+                errEl.classList.remove('d-none');
+                resultBox.classList.add('d-none');
+                return;
+            }
+
+            errEl.classList.add('d-none');
+            document.getElementById('txtFoundPin').innerText = appPin;
+            resultBox.classList.remove('d-none');
+            btnVerify.classList.add('d-none');
+        }
+
+        function autoLoginWithFoundPin() {
+            document.getElementById('inputPinLock').value = appPin;
+            showBoxPinLogin();
+            verifyPin();
+        }
+
+        function openModalUbahPin() {
+            document.getElementById('formUbahPin').reset();
+            document.getElementById('inputQuestionSet').value = secQuestion;
+            document.getElementById('inputSecPhraseSet').value = secPhrase;
+            new bootstrap.Modal(document.getElementById('modalUbahPin')).show();
+        }
+
+        function processUbahPin(e) {
+            e.preventDefault();
+            const pinLama = document.getElementById('inputPinLama').value.trim();
+            const pinBaru = document.getElementById('inputPinBaruSet').value.trim();
+            const newPhrase = document.getElementById('inputSecPhraseSet').value.trim();
+            const newQuestion = document.getElementById('inputQuestionSet').value.trim();
+            const newAnswer = document.getElementById('inputAnswerSet').value.trim();
+
+            if (pinLama !== appPin) {
+                showAlert('PIN lama Anda tidak sesuai!', 'Gagal', 'bi-x-circle text-danger');
+                return;
+            }
+
+            if (pinBaru.length < 4) {
+                showAlert('PIN baru minimal 4 karakter!', 'Gagal', 'bi-exclamation-circle text-warning');
+                return;
+            }
+
+            appPin = pinBaru;
+            secPhrase = newPhrase;
+            secQuestion = newQuestion;
+            secAnswer = newAnswer;
+
+            localStorage.setItem('ym_pin', appPin);
+            localStorage.setItem('ym_sec_phrase', secPhrase);
+            localStorage.setItem('ym_sec_q', secQuestion);
+            localStorage.setItem('ym_sec_a', secAnswer);
+
+            updateSecurityBadgeUI();
+            bootstrap.Modal.getInstance(document.getElementById('modalUbahPin')).hide();
+            showAlert('PIN, Frasa Anti-Phishing & Keamanan berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+        }
+
+        // --- 5. ANTI REFRESH, TAB SWITCH & AUTO LOGOUT ---
+        let idleTimer = null;
+        const IDLE_TIMEOUT_MS = 2 * 60 * 1000;
+
+        function resetIdleTimer() {
+            stopIdleTimer();
+            if (document.getElementById('pinLockOverlay').style.display === 'none') {
+                idleTimer = setTimeout(() => {
+                    lockAppManually('Otomatis terkunci karena tidak ada aktivitas.');
+                }, IDLE_TIMEOUT_MS);
+            }
+        }
+
+        function startIdleTimer() {
+            resetIdleTimer();
+            ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach(evt => {
+                window.addEventListener(evt, resetIdleTimer, { passive: true });
+            });
+        }
+
+        function stopIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                lockAppManually('Aplikasi otomatis terkunci demi keamanan.');
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            stopQRScanner();
+        });
+
+        // --- 6. DATA STORE (LOCALSTORAGE 100%) ---
+        let state = {
+            siswa: JSON.parse(localStorage.getItem('ym_siswa')) || [],
+            transaksi: JSON.parse(localStorage.getItem('ym_transaksi')) || []
+        };
+
+        let selectedSiswaId = null;
+        let html5QrcodeScanner = null;
+        let deferredPrompt = null;
+
+        function saveData() {
+            localStorage.setItem('ym_siswa', JSON.stringify(state.siswa));
+            localStorage.setItem('ym_transaksi', JSON.stringify(state.transaksi));
+            renderDashboard();
+        }
+
+        // --- SPA NAVIGATION ---
+        function switchTab(sectionId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav .nav-link').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById(`nav-${sectionId}`).classList.add('active');
+
+            if (sectionId === 'sec-data') renderSiswaList();
+            if (sectionId === 'sec-beranda') renderDashboard();
+        }
+
+        // --- KUSTOM MODAL HELPERS ---
+        function showAlert(message, title = 'Informasi', icon = 'bi-info-circle text-primary') {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertIcon').className = `bi ${icon} fs-1 mb-2 d-block`;
+            
+            const modalEl = document.getElementById('customAlertModal');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) modalObj = new bootstrap.Modal(modalEl);
+            modalObj.show();
+        }
+
+        function showConfirm(message, onConfirm, title = 'Konfirmasi') {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            const okBtn = document.getElementById('confirmOkBtn');
+            
+            const modalEl = document.getElementById('customConfirmModal');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) modalObj = new bootstrap.Modal(modalEl);
+            
+            okBtn.onclick = function() {
+                modalObj.hide();
+                onConfirm();
+            };
+            
+            modalObj.show();
+        }
+
+        // --- DASHBOARD RENDER ---
+        function renderDashboard() {
+            renderIdentitasSekolah();
+
+            const totalKas = state.siswa.reduce((acc, curr) => acc + (curr.saldo || 0), 0);
+            document.getElementById('dashTotalKas').innerText = formatRupiah(totalKas);
+            document.getElementById('dashTotalSiswa').innerText = state.siswa.length;
+
+            const today = new Date().toISOString().split('T')[0];
+            const txHariIni = state.transaksi.filter(t => t.tanggal.startsWith(today)).length;
+            document.getElementById('dashTxHariIni').innerText = txHariIni;
+
+            const recentTxList = document.getElementById('recentTxList');
+            recentTxList.innerHTML = '';
+            const recent = [...state.transaksi].reverse().slice(0, 5);
+
+            if (recent.length === 0) {
+                recentTxList.innerHTML = '<div class="text-center py-3 text-muted small">Belum ada transaksi.</div>';
+                return;
+            }
+
+            recent.forEach(tx => {
+                const s = state.siswa.find(item => item.id === tx.siswaId);
+                const nama = s ? s.nama : 'Siswa Dihapus';
+                const isSetor = tx.tipe === 'setor';
+                
+                recentTxList.innerHTML += `
+                    <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small">${nama}</div>
+                            <small class="text-muted" style="font-size: 0.7rem;">${formatTanggal(tx.tanggal)}</small>
+                        </div>
+                        <span class="fw-bold small ${isSetor ? 'text-success' : 'text-danger'}">
+                            ${isSetor ? '+' : '-'}${formatRupiah(tx.nominal)}
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        // --- MANAJEMEN SISWA ---
+        function renderSiswaList() {
+            const container = document.getElementById('siswaList');
+            const keyword = document.getElementById('searchSiswaInput').value.toLowerCase();
+            container.innerHTML = '';
+
+            const filtered = state.siswa.filter(s => 
+                s.nama.toLowerCase().includes(keyword) || s.nisn.includes(keyword)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-muted small">Data siswa tidak ditemukan.</div>';
+                return;
+            }
+
+            filtered.forEach(s => {
+                let badgeColor = 'bg-primary';
+                if(s.jenjang === 'TK') badgeColor = 'bg-warning text-dark';
+                if(s.jenjang === 'SMP') badgeColor = 'bg-info text-dark';
+                if(s.jenjang === 'SMA') badgeColor = 'bg-dark';
+
+                container.innerHTML += `
+                    <div class="card card-custom p-3 bg-white" onclick="openDetailSiswa('${s.id}')" style="cursor:pointer">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge ${badgeColor} badge-jenjang mb-1">${s.jenjang}</span>
+                                <h6 class="fw-bold m-0 text-dark">${s.nama}</h6>
+                                <small class="text-muted">NISN: ${s.nisn}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted d-block" style="font-size:0.7rem;">Saldo</small>
+                                <span class="fw-bold text-primary">${formatRupiah(s.saldo || 0)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openModalTambahSiswa() {
+            document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
+            document.getElementById('formSiswa').reset();
+            document.getElementById('siswaId').value = '';
+            document.getElementById('modalSiswaQrPreview').innerHTML = '<small class="text-muted" style="font-size:0.75rem;">Ketik NISN/Nama di atas untuk membuat QR</small>';
+            new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+        }
+
+        function editSiswa(siswaId) {
+            const siswa = state.siswa.find(s => s.id === siswaId);
+            if (!siswa) return;
+
+            document.getElementById('modalSiswaTitle').innerText = 'Edit Data Siswa';
+            document.getElementById('siswaId').value = siswa.id;
+            document.getElementById('inputNisn').value = siswa.nisn;
+            document.getElementById('inputNama').value = siswa.nama;
+            document.getElementById('inputJenjang').value = siswa.jenjang;
+
+            updateFormQrPreview();
+
+            const modalDetail = bootstrap.Modal.getInstance(document.getElementById('modalDetailSiswa'));
+            if (modalDetail) modalDetail.hide();
+            new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+        }
+
+        function deleteSiswa(siswaId) {
+            const siswa = state.siswa.find(s => s.id === siswaId);
+            if (!siswa) return;
+
+            showConfirm(`Hapus siswa "${siswa.nama}"? Seluruh riwayat transaksi siswa ini juga akan dihapus permanen!`, function() {
+                state.siswa = state.siswa.filter(s => s.id !== siswaId);
+                state.transaksi = state.transaksi.filter(t => t.siswaId !== siswaId);
+                saveData();
+                const modalDetail = bootstrap.Modal.getInstance(document.getElementById('modalDetailSiswa'));
+                if (modalDetail) modalDetail.hide();
+                showAlert('Data siswa dan seluruh riwayat transaksinya telah dihapus.', 'Siswa Dihapus', 'bi-trash text-success');
+                renderSiswaList();
+            }, 'Hapus Data Siswa');
+        }
+
+        function updateFormQrPreview() {
+            const nisn = document.getElementById('inputNisn').value.trim();
+            const nama = document.getElementById('inputNama').value.trim();
+            const previewContainer = document.getElementById('modalSiswaQrPreview');
+            
+            previewContainer.innerHTML = '';
+
+            const qrText = nisn || nama;
+            if (qrText.length > 0) {
+                new QRCode(previewContainer, {
+                    text: qrText,
+                    width: 90,
+                    height: 90
+                });
+            } else {
+                previewContainer.innerHTML = '<small class="text-muted" style="font-size:0.75rem;">Ketik NISN/Nama di atas untuk membuat QR</small>';
+            }
+        }
+
+        document.getElementById('formSiswa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('siswaId').value || 'S_' + Date.now();
+            const nisn = document.getElementById('inputNisn').value.trim();
+            const nama = document.getElementById('inputNama').value.trim();
+            const jenjang = document.getElementById('inputJenjang').value;
+
+            if (!document.getElementById('siswaId').value) {
+                if (state.siswa.some(s => s.nisn === nisn)) {
+                    showAlert('NISN sudah terdaftar!', 'Gagal Simpan', 'bi-exclamation-circle text-danger');
+                    return;
+                }
+            }
+
+            const existingIndex = state.siswa.findIndex(s => s.id === id);
+            if (existingIndex >= 0) {
+                state.siswa[existingIndex].nisn = nisn;
+                state.siswa[existingIndex].nama = nama;
+                state.siswa[existingIndex].jenjang = jenjang;
+            } else {
+                state.siswa.push({ id, nisn, nama, jenjang, saldo: 0 });
+            }
+
+            saveData();
+            bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
+            showAlert('Data siswa berhasil disimpan!', 'Sukses', 'bi-check-circle text-success');
+            renderSiswaList();
+        });
+
+        // --- DETAIL, REVISI TRANSAKSI & SHARE WA ---
+        function openDetailSiswa(siswaId) {
+            const siswa = state.siswa.find(s => s.id === siswaId);
+            if (!siswa) return;
+
+            selectedSiswaId = siswaId;
+            document.getElementById('detailNamaSiswa').innerText = siswa.nama;
+            document.getElementById('detailNisnSiswa').innerText = 'NISN: ' + siswa.nisn;
+            document.getElementById('detailBadgeJenjang').innerText = siswa.jenjang;
+            document.getElementById('detailSaldoSiswa').innerText = formatRupiah(siswa.saldo || 0);
+
+            document.getElementById('qrCodeContainer').classList.add('d-none');
+
+            const historyContainer = document.getElementById('siswaTxHistory');
+            historyContainer.innerHTML = '';
+            const listTx = state.transaksi.filter(t => t.siswaId === siswaId).reverse();
+
+            if (listTx.length === 0) {
+                historyContainer.innerHTML = '<div class="text-center py-3 text-muted small">Belum ada riwayat transaksi</div>';
+            } else {
+                listTx.forEach(t => {
+                    const isSetor = t.tipe === 'setor';
+                    historyContainer.innerHTML += `
+                        <div class="list-group-item p-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="fw-bold d-block text-dark">${t.ket || (isSetor ? 'Setor Tunai' : 'Tarik Tunai')}</small>
+                                <small class="text-muted" style="font-size:0.65rem;">${formatTanggal(t.tanggal)}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold small ${isSetor ? 'text-success' : 'text-danger'} d-block">
+                                    ${isSetor ? '+' : '-'}${formatRupiah(t.nominal)}
+                                </span>
+                                <div class="btn-group btn-group-sm mt-1">
+                                    <button class="btn btn-light btn-sm p-0 px-1 text-primary border" title="Edit Transaksi" onclick="openModalEditTx('${t.id}')">
+                                        <i class="bi bi-pencil-square" style="font-size:0.75rem;"></i>
+                                    </button>
+                                    <button class="btn btn-light btn-sm p-0 px-1 text-danger border" title="Hapus Transaksi" onclick="deleteTransaksi('${t.id}')">
+                                        <i class="bi bi-trash" style="font-size:0.75rem;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const modalEl = document.getElementById('modalDetailSiswa');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) {
+                modalObj = new bootstrap.Modal(modalEl);
+            }
+            modalObj.show();
+        }
+
+        function shareWhatsAppSiswa() {
+            const siswa = state.siswa.find(s => s.id === selectedSiswaId);
+            if (!siswa) return;
+
+            const listTx = state.transaksi.filter(t => t.siswaId === siswa.id).reverse().slice(0, 10);
+
+            let textTf = `*${sekolah.nama.toUpperCase()} - LAPORAN TABUNGAN SISWA*\n`;
+            if (sekolah.npsn) textTf += `NPSN: ${sekolah.npsn}\n`;
+            textTf += `==================================\n`;
+            textTf += `👤 *Nama:* ${siswa.nama}\n`;
+            textTf += `🆔 *NISN:* ${siswa.nisn}\n`;
+            textTf += `🏫 *Jenjang:* ${siswa.jenjang}\n`;
+            textTf += `💰 *Total Saldo Saat Ini:* ${formatRupiah(siswa.saldo || 0)}\n`;
+            textTf += `==================================\n`;
+            textTf += `📜 *Riwayat Transaksi Terakhir:*\n`;
+
+            if (listTx.length === 0) {
+                textTf += `_Belum ada riwayat transaksi._\n`;
+            } else {
+                listTx.forEach((t, i) => {
+                    const tipeStr = t.tipe === 'setor' ? 'Setor (+)' : 'Tarik (-)';
+                    const tgl = formatTanggalShort(t.tanggal);
+                    const ketStr = t.ket ? ` (${t.ket})` : '';
+                    textTf += `${i + 1}. [${tgl}] ${tipeStr} ${formatRupiah(t.nominal)}${ketStr}\n`;
+                });
+            }
+
+            textTf += `==================================\n`;
+            textTf += `_Laporan transparansi resmi ditarik dari aplikasi Yok Menabung._\n`;
+            textTf += `*Powered by Ari GPM*`;
+
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(textTf)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function openModalEditTx(txId) {
+            const tx = state.transaksi.find(t => t.id === txId);
+            if (!tx) return;
+
+            document.getElementById('editTxId').value = txId;
+            document.getElementById('editTxNominal').value = tx.nominal;
+            document.getElementById('editTxKet').value = tx.ket || '';
+
+            new bootstrap.Modal(document.getElementById('modalEditTx')).show();
+        }
+
+        document.getElementById('formEditTx').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const txId = document.getElementById('editTxId').value;
+            const newNominal = parseInt(document.getElementById('editTxNominal').value) || 0;
+            const newKet = document.getElementById('editTxKet').value.trim();
+
+            const txIndex = state.transaksi.findIndex(t => t.id === txId);
+            if (txIndex < 0) return;
+
+            const tx = state.transaksi[txIndex];
+            const siswaIndex = state.siswa.findIndex(s => s.id === tx.siswaId);
+            if (siswaIndex < 0) return;
+
+            let siswa = state.siswa[siswaIndex];
+            let selisih = newNominal - tx.nominal;
+
+            if (tx.tipe === 'setor') {
+                if (siswa.saldo + selisih < 0) {
+                    showAlert('Perubahan nominal setor membuat saldo menjadi minus!', 'Gagal Edit', 'bi-exclamation-triangle text-danger');
+                    return;
+                }
+                siswa.saldo += selisih;
+            } else {
+                if (siswa.saldo - selisih < 0) {
+                    showAlert('Saldo siswa tidak mencukupi untuk penarikan sebesar ini!', 'Gagal Edit', 'bi-exclamation-triangle text-danger');
+                    return;
+                }
+                siswa.saldo -= selisih;
+            }
+
+            tx.nominal = newNominal;
+            tx.ket = newKet;
+
+            saveData();
+            bootstrap.Modal.getInstance(document.getElementById('modalEditTx')).hide();
+            showAlert('Transaksi berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+            openDetailSiswa(siswa.id);
+        });
+
+        function deleteTransaksi(txId) {
+            const tx = state.transaksi.find(t => t.id === txId);
+            if (!tx) return;
+
+            showConfirm('Apakah Anda yakin ingin menghapus catatan transaksi ini?', function() {
+                const siswaIndex = state.siswa.findIndex(s => s.id === tx.siswaId);
+                if (siswaIndex >= 0) {
+                    if (tx.tipe === 'setor') {
+                        state.siswa[siswaIndex].saldo -= tx.nominal;
+                    } else {
+                        state.siswa[siswaIndex].saldo += tx.nominal;
+                    }
+                }
+                state.transaksi = state.transaksi.filter(t => t.id !== txId);
+                saveData();
+                showAlert('Transaksi berhasil dihapus.', 'Sukses', 'bi-check-circle text-success');
+                openDetailSiswa(tx.siswaId);
+            }, 'Hapus Transaksi');
+        }
+
+        function toggleQRView() {
+            const container = document.getElementById('qrCodeContainer');
+            const siswa = state.siswa.find(s => s.id === selectedSiswaId);
+            if (!siswa) return;
+
+            if (container.classList.contains('d-none')) {
+                container.classList.remove('d-none');
+                document.getElementById('qrcode').innerHTML = '';
+                new QRCode(document.getElementById("qrcode"), {
+                    text: siswa.nisn,
+                    width: 120,
+                    height: 120
+                });
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+
+        // --- FITUR CETAK KARTU / QR CODE SISWA ---
+        function printCardSiswa() {
+            const siswa = state.siswa.find(s => s.id === selectedSiswaId);
+            if (!siswa) return;
+
+            const printArea = document.getElementById('printableCardArea');
+            printArea.innerHTML = `
+                <div style="width: 320px; border: 2px solid #0d6efd; border-radius: 12px; padding: 16px; margin: 20px auto; font-family: sans-serif; background: #ffffff; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; border-bottom:1px solid #dee2e6; padding-bottom:8px;">
+                        <img src="logoyokmenabung.png" width="30" height="30" style="border-radius:50%;" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-weight:bold; font-size:13px; color:#0d6efd;">${sekolah.nama.toUpperCase()}</div>
+                            <div style="font-size:9px; color:#6c757d;">YOK MENABUNG TABUNGAN SISWA</div>
+                        </div>
+                    </div>
+                    <span style="background:#0d6efd; color:#ffffff; font-size:10px; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${siswa.jenjang}</span>
+                    <h5 style="margin:4px 0; font-size:16px; font-weight:bold; color:#212529;">${siswa.nama}</h5>
+                    <p style="margin:0 0 10px 0; font-size:12px; color:#6c757d;">NISN: ${siswa.nisn}</p>
+                    <div id="printQrcodeContainer" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
+                    <div style="font-size:9px; color:#888; border-top:1px dashed #ccc; padding-top:8px;">
+                        Kartu Tabungan Identitas Resmi<br>
+                        <strong style="color:#0d6efd;">Powered by Ari GPM</strong>
+                    </div>
+                </div>
+            `;
+
+            new QRCode(document.getElementById("printQrcodeContainer"), {
+                text: siswa.nisn,
+                width: 130,
+                height: 130
+            });
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
+        function openModalTx(tipe) {
+            document.getElementById('txType').value = tipe;
+            document.getElementById('formTx').reset();
+            const btn = document.getElementById('btnSubmitTx');
+            
+            if (tipe === 'setor') {
+                document.getElementById('modalTxTitle').innerText = 'Setor Tunai Tabungan';
+                btn.className = 'btn btn-success w-100 rounded-pill btn-action-touch';
+                btn.innerText = 'Proses Setor Tunai';
+            } else {
+                document.getElementById('modalTxTitle').innerText = 'Tarik Tunai Tabungan';
+                btn.className = 'btn btn-danger w-100 rounded-pill btn-action-touch';
+                btn.innerText = 'Proses Tarik Tunai';
+            }
+
+            new bootstrap.Modal(document.getElementById('modalTx')).show();
+        }
+
+        document.getElementById('formTx').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const tipe = document.getElementById('txType').value;
+            const nominal = parseInt(document.getElementById('txNominal').value) || 0;
+            const ket = document.getElementById('txKet').value.trim();
+
+            const siswaIndex = state.siswa.findIndex(s => s.id === selectedSiswaId);
+            if (siswaIndex < 0) return;
+
+            let currentSaldo = state.siswa[siswaIndex].saldo || 0;
+
+            if (tipe === 'tarik' && nominal > currentSaldo) {
+                showAlert('Saldo tabungan siswa tidak mencukupi!', 'Gagal Tarik', 'bi-exclamation-triangle text-danger');
+                return;
+            }
+
+            if (tipe === 'setor') {
+                currentSaldo += nominal;
+            } else {
+                currentSaldo -= nominal;
+            }
+            state.siswa[siswaIndex].saldo = currentSaldo;
+
+            state.transaksi.push({
+                id: 'TX_' + Date.now(),
+                siswaId: selectedSiswaId,
+                tipe: tipe,
+                nominal: nominal,
+                ket: ket,
+                tanggal: new Date().toISOString()
+            });
+
+            saveData();
+            bootstrap.Modal.getInstance(document.getElementById('modalTx')).hide();
+            bootstrap.Modal.getInstance(document.getElementById('modalDetailSiswa')).hide();
+
+            showAlert(`Transaksi ${tipe === 'setor' ? 'Setor' : 'Tarik'} Tunai Berhasil!`, 'Sukses', 'bi-check-circle text-success');
+            renderSiswaList();
+        });
+
+        // --- QR SCANNER MODE ---
+        function openQRScanner() {
+            const modalScanner = new bootstrap.Modal(document.getElementById('modalQRScanner'));
+            modalScanner.show();
+
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 200, height: 200 } },
+                onScanSuccess
+            ).catch(err => {
+                stopQRScanner();
+                showAlert('Kamera tidak terdeteksi atau tidak diizinkan!', 'Kamera Error', 'bi-camera-video-off text-danger');
+            });
+        }
+
+        function onScanSuccess(decodedText) {
+            stopQRScanner();
+            bootstrap.Modal.getInstance(document.getElementById('modalQRScanner')).hide();
+
+            const siswa = state.siswa.find(s => s.nisn === decodedText.trim());
+            if (siswa) {
+                openDetailSiswa(siswa.id);
+            } else {
+                showAlert(`Siswa dengan NISN "${decodedText}" tidak ditemukan.`, 'Hasil Scan', 'bi-search text-warning');
+            }
+        }
+
+        function stopQRScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => html5QrcodeScanner.clear()).catch(() => {});
+            }
+        }
+
+        // --- BACKUP & RESTORE JSON ---
+        function exportDataJSON() {
+            const backupPayload = {
+                state: state,
+                sekolah: sekolah,
+                theme: currentTheme,
+                security: {
+                    pin: appPin,
+                    sec_phrase: secPhrase,
+                    sec_q: secQuestion,
+                    sec_a: secAnswer
+                }
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const dateStr = new Date().toISOString().split('T')[0];
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Backup_YokMenabung_${dateStr}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    const importedState = imported.state || imported;
+                    
+                    if (importedState.siswa && importedState.transaksi) {
+                        showConfirm('Aksi ini akan menggantikan seluruh data saat ini. Lanjutkan?', function() {
+                            state = importedState;
+                            if (imported.sekolah) {
+                                sekolah = imported.sekolah;
+                                saveSekolah();
+                            }
+                            if (imported.theme) {
+                                selectTheme(imported.theme);
+                            }
+                            if (imported.security) {
+                                appPin = imported.security.pin || appPin;
+                                secPhrase = imported.security.sec_phrase || secPhrase;
+                                secQuestion = imported.security.sec_q || secQuestion;
+                                secAnswer = imported.security.sec_a || secAnswer;
+                                localStorage.setItem('ym_pin', appPin);
+                                localStorage.setItem('ym_sec_phrase', secPhrase);
+                                localStorage.setItem('ym_sec_q', secQuestion);
+                                localStorage.setItem('ym_sec_a', secAnswer);
+                            }
+                            saveData();
+                            updateSecurityBadgeUI();
+                            showAlert('Data berhasil dipulihkan dari backup!', 'Import Berhasil', 'bi-check-circle text-success');
+                            switchTab('sec-beranda');
+                        }, 'Import Backup');
+                    } else {
+                        showAlert('Format file backup .json tidak valid!', 'Gagal Import', 'bi-x-circle text-danger');
+                    }
+                } catch (err) {
+                    showAlert('Gagal membaca file JSON!', 'Gagal Import', 'bi-x-circle text-danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmResetAllData() {
+            showConfirm('Apakah Anda yakin ingin menghapus SELURUH data siswa & transaksi? Data tidak bisa dikembalikan!', function() {
+                state = { siswa: [], transaksi: [] };
+                saveData();
+                showAlert('Seluruh data berhasil dihapus.', 'Reset Data', 'bi-trash text-success');
+                switchTab('sec-beranda');
+            }, 'Hapus Permanen');
+        }
+
+        // --- HELPER FORMAT ---
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+        }
+
+        function formatTanggal(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTanggalShort(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // --- PWA SERVICE WORKER & INSTALL BANNER ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('SW Registered'))
+                    .catch(err => console.log('SW Fail:', err));
+            });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwaInstallBtn');
+            installBtn.classList.remove('d-none');
+            installBtn.classList.add('d-flex');
+
+            installBtn.addEventListener('click', () => {
+                installBtn.classList.add('d-none');
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        // Init Load
+        applyThemeUI();
+        updateSecurityBadgeUI();
+        renderDashboard();
+    </script>
+</body>
+</html>
