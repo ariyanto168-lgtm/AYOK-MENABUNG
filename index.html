@@ -75,7 +75,7 @@
             display: block;
         }
 
-        /* LAYAR KUNCI OVERLAY (Z-Index diatur di bawah Modal Bootstrap) */
+        /* LAYAR KUNCI OVERLAY */
         #pinLockOverlay {
             position: fixed;
             top: 0;
@@ -91,7 +91,7 @@
             overflow-y: auto;
         }
 
-        /* MEMASTIKAN MODAL BOOTSTRAP TAMPIL DI ATAS OVERLAY PIN LOCK */
+        /* MODAL BOOTSTRAP ATAS OVERLAY */
         .modal {
             z-index: 1060 !important;
         }
@@ -99,12 +99,11 @@
             z-index: 1050 !important;
         }
 
-        /* RESPONSIVE TOUCH & CARD */
         .btn-action-touch {
             min-height: 44px;
         }
 
-        /* STYLES KHUSUS MODO CETAK (PRINT) */
+        /* STYLES MODO CETAK (PRINT) */
         @media print {
             body * {
                 visibility: hidden;
@@ -167,7 +166,7 @@
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.6</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.7</span>
             </a>
             <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-outline-light btn-sm px-2 py-1" onclick="lockAppManually()" title="Kunci Aplikasi">
@@ -185,6 +184,21 @@
 
         <!-- TAB 1: BERANDA -->
         <section id="sec-beranda" class="page-section active">
+            
+            <!-- DASHBOARD KARTU IDENTITAS SEKOLAH -->
+            <div class="card card-custom p-3 mb-3 bg-white border-start border-4 border-primary shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <small class="text-primary fw-bold text-uppercase" style="font-size:0.68rem; letter-spacing:0.5px;">
+                            <i class="bi bi-building me-1"></i> Identitas Sekolah
+                        </small>
+                        <h6 class="fw-bold text-dark m-0 mt-1" id="dashNamaSekolah">SD Negeri 01 Cerdas</h6>
+                        <small class="text-muted d-block mt-1" style="font-size:0.75rem;" id="dashNpsnSekolah">NPSN: 12345678 | Jl. Pendidikan No. 1</small>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary fw-semibold" style="font-size:0.7rem;" id="dashThnSekolah">TA 2026/2027</span>
+                </div>
+            </div>
+
             <!-- Ringkasan Saldo -->
             <div class="card card-custom bg-primary text-white mb-3">
                 <div class="card-body p-3">
@@ -263,6 +277,15 @@
         <section id="sec-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Data</h5>
 
+            <!-- Pengaturan Identitas Sekolah -->
+            <div class="card card-custom p-3 mb-3 bg-white">
+                <h6 class="fw-bold mb-2"><i class="bi bi-building me-2 text-primary"></i> Identitas Sekolah</h6>
+                <p class="small text-muted mb-3">Atur nama sekolah, NPSN, alamat, dan tahun ajaran untuk kartu & laporan.</p>
+                <button class="btn btn-outline-primary btn-sm w-100 btn-action-touch" onclick="openModalEditSekolah()">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Identitas Sekolah
+                </button>
+            </div>
+
             <!-- Pengaturan Keamanan PIN & Anti-Phishing -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i> Keamanan PIN & Anti-Phishing</h6>
@@ -302,7 +325,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.6</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.7</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -331,36 +354,62 @@
     <!-- CONTAINER KHUSUS CETAK KARTU (Hanya Muncul Saat Print) -->
     <div id="printableCardArea" class="d-none"></div>
 
-    <!-- ================= MODAL DIALOGS (ANTI-POPUP BROWSER) ================= -->
+    <!-- ================= MODAL DIALOGS ================= -->
 
-    <!-- Modal Lupa PIN -->
+    <!-- Modal Edit Identitas Sekolah -->
+    <div class="modal fade no-print" id="modalSekolah" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-building me-1"></i> Edit Identitas Sekolah</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSekolah" onsubmit="processSaveSekolah(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Nama Sekolah / Instansi</label>
+                            <input type="text" id="inputNamaSekolah" class="form-control" placeholder="Contoh: SD Negeri 01 Cerdas" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">NPSN</label>
+                            <input type="text" id="inputNpsnSekolah" class="form-control" placeholder="Contoh: 12345678">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Alamat Sekolah</label>
+                            <input type="text" id="inputAlamatSekolah" class="form-control" placeholder="Contoh: Jl. Pendidikan No. 1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Tahun Ajaran / Semester</label>
+                            <input type="text" id="inputThnSekolah" class="form-control" placeholder="Contoh: 2026/2027">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Identitas Sekolah</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lupa PIN (Hanya Tampilkan Question & Jawaban) -->
     <div class="modal fade no-print" id="modalLupaPin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-1"></i> Pemulihan PIN Keamanan</h6>
+                    <h6 class="modal-title fw-bold"><i class="bi bi-question-circle me-1"></i> Pertanyaan Keamanan</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="formLupaPin" onsubmit="processLupaPin(event)">
-                        <div class="mb-3 p-2 bg-light border rounded">
+                        <div class="mb-3 p-3 bg-light border rounded">
                             <label class="form-label small fw-bold text-muted d-block mb-1">Pertanyaan Keamanan Pengaman:</label>
-                            <span id="txtLupaPinQuestion" class="fw-semibold text-dark small">Siapa nama pembuat aplikasi ini?</span>
+                            <span id="txtLupaPinQuestion" class="fw-bold text-dark fs-6">Siapa nama pembuat aplikasi ini?</span>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">Jawaban Keamanan</label>
-                            <input type="text" id="inputJawabanKeamanan" class="form-control" placeholder="Jawaban Anda" required>
+                            <label class="form-label small fw-semibold">Jawaban Anda</label>
+                            <input type="text" id="inputJawabanKeamanan" class="form-control form-control-lg" placeholder="Masukkan jawaban" required autocomplete="off">
                         </div>
-                        <hr>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">PIN Baru</label>
-                            <input type="password" id="inputPinBaruLupa" class="form-control" placeholder="Masukkan PIN baru" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Konfirmasi PIN Baru</label>
-                            <input type="password" id="inputKonfirmasiPinBaruLupa" class="form-control" placeholder="Ulangi PIN baru" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Reset & Buat PIN Baru</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch fw-bold">
+                            <i class="bi bi-shield-check me-1"></i> Verifikasi & Tampilkan PIN
+                        </button>
                     </form>
                 </div>
             </div>
@@ -413,7 +462,7 @@
                 <div class="modal-body p-2">
                     <i id="alertIcon" class="bi bi-info-circle fs-1 text-primary mb-2 d-block"></i>
                     <h6 id="alertTitle" class="fw-bold mb-2">Informasi</h6>
-                    <p id="alertMessage" class="small text-muted mb-3"></p>
+                    <p id="alertMessage" class="small text-muted mb-3" style="white-space: pre-line;"></p>
                     <button type="button" class="btn btn-primary btn-sm w-100 rounded-pill py-2" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
@@ -628,7 +677,49 @@
             window.top.location = window.self.location;
         }
 
-        // --- 2. SECURITY & PIN MANAGEMENT STORE ---
+        // --- 2. IDENTITAS SEKOLAH STORE ---
+        let sekolah = JSON.parse(localStorage.getItem('ym_sekolah')) || {
+            nama: "SD Negeri 01 Cerdas",
+            npsn: "12345678",
+            alamat: "Jl. Pendidikan No. 1",
+            tahunAjaran: "2026/2027"
+        };
+
+        function saveSekolah() {
+            localStorage.setItem('ym_sekolah', JSON.stringify(sekolah));
+            renderIdentitasSekolah();
+        }
+
+        function renderIdentitasSekolah() {
+            document.getElementById('dashNamaSekolah').innerText = sekolah.nama || 'Nama Sekolah Belum Diatur';
+            
+            let npsnTxt = sekolah.npsn ? `NPSN: ${sekolah.npsn}` : 'NPSN: -';
+            let alamatTxt = sekolah.alamat ? ` | ${sekolah.alamat}` : '';
+            document.getElementById('dashNpsnSekolah').innerText = `${npsnTxt}${alamatTxt}`;
+            document.getElementById('dashThnSekolah').innerText = `TA ${sekolah.tahunAjaran || '-'}`;
+        }
+
+        function openModalEditSekolah() {
+            document.getElementById('inputNamaSekolah').value = sekolah.nama || '';
+            document.getElementById('inputNpsnSekolah').value = sekolah.npsn || '';
+            document.getElementById('inputAlamatSekolah').value = sekolah.alamat || '';
+            document.getElementById('inputThnSekolah').value = sekolah.tahunAjaran || '';
+            new bootstrap.Modal(document.getElementById('modalSekolah')).show();
+        }
+
+        function processSaveSekolah(e) {
+            e.preventDefault();
+            sekolah.nama = document.getElementById('inputNamaSekolah').value.trim();
+            sekolah.npsn = document.getElementById('inputNpsnSekolah').value.trim();
+            sekolah.alamat = document.getElementById('inputAlamatSekolah').value.trim();
+            sekolah.tahunAjaran = document.getElementById('inputThnSekolah').value.trim();
+
+            saveSekolah();
+            bootstrap.Modal.getInstance(document.getElementById('modalSekolah')).hide();
+            showAlert('Identitas sekolah berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+        }
+
+        // --- 3. SECURITY & PIN MANAGEMENT ---
         const DEFAULT_PIN = "kamunanyak";
         const DEFAULT_SEC_QUESTION = "Siapa nama pembuat aplikasi ini?";
         const DEFAULT_SEC_ANSWER = "ari gpm";
@@ -678,7 +769,7 @@
             }
         }
 
-        // --- 3. REVISI FITUR LUPA PIN ---
+        // --- LUPA PIN (HANYA TAMPILKAN QUESTION & VERIFIKASI LANGSUNG) ---
         function openModalLupaPin() {
             document.getElementById('txtLupaPinQuestion').innerText = secQuestion;
             document.getElementById('formLupaPin').reset();
@@ -694,32 +785,17 @@
         function processLupaPin(e) {
             e.preventDefault();
             const inputAnswer = document.getElementById('inputJawabanKeamanan').value.trim().toLowerCase();
-            const newPin = document.getElementById('inputPinBaruLupa').value.trim();
-            const confirmPin = document.getElementById('inputKonfirmasiPinBaruLupa').value.trim();
 
             if (inputAnswer !== secAnswer.toLowerCase()) {
-                showAlert('Jawaban keamanan tidak cocok!', 'Gagal Reset', 'bi-x-circle text-danger');
+                showAlert('Jawaban keamanan tidak cocok! Silakan coba lagi.', 'Gagal Verifikasi', 'bi-x-circle text-danger');
                 return;
             }
-
-            if (newPin.length < 4) {
-                showAlert('PIN baru minimal 4 karakter!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
-                return;
-            }
-
-            if (newPin !== confirmPin) {
-                showAlert('Konfirmasi PIN baru tidak sesuai!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
-                return;
-            }
-
-            appPin = newPin;
-            localStorage.setItem('ym_pin', appPin);
 
             const modalEl = document.getElementById('modalLupaPin');
             const modalObj = bootstrap.Modal.getInstance(modalEl);
             if (modalObj) modalObj.hide();
 
-            showAlert('PIN berhasil diperbarui! Silakan masuk dengan PIN baru Anda.', 'Pemulihan Sukses', 'bi-check-circle text-success');
+            showAlert(`Jawaban Anda Benar!\n\nPIN Masuk Aplikasi Anda adalah: "${appPin}"`, 'PIN Berhasil Ditemukan', 'bi-key-fill text-success');
         }
 
         function openModalUbahPin() {
@@ -786,14 +862,12 @@
             if (idleTimer) clearTimeout(idleTimer);
         }
 
-        // Kunci saat Berpindah Tab atau Aplikasi di-minimize
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 lockAppManually('Aplikasi otomatis terkunci demi keamanan.');
             }
         });
 
-        // Kunci saat Halaman di-refresh / ditutup
         window.addEventListener('beforeunload', () => {
             stopQRScanner();
         });
@@ -826,7 +900,7 @@
             if (sectionId === 'sec-beranda') renderDashboard();
         }
 
-        // --- KUSTOM MODAL HELPERS (ANTI POPUP BROWSER) ---
+        // --- KUSTOM MODAL HELPERS ---
         function showAlert(message, title = 'Informasi', icon = 'bi-info-circle text-primary') {
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
@@ -857,6 +931,8 @@
 
         // --- DASHBOARD RENDER ---
         function renderDashboard() {
+            renderIdentitasSekolah();
+
             const totalKas = state.siswa.reduce((acc, curr) => acc + (curr.saldo || 0), 0);
             document.getElementById('dashTotalKas').innerText = formatRupiah(totalKas);
             document.getElementById('dashTotalSiswa').innerText = state.siswa.length;
@@ -865,7 +941,6 @@
             const txHariIni = state.transaksi.filter(t => t.tanggal.startsWith(today)).length;
             document.getElementById('dashTxHariIni').innerText = txHariIni;
 
-            // Render 5 Transaksi Terakhir
             const recentTxList = document.getElementById('recentTxList');
             recentTxList.innerHTML = '';
             const recent = [...state.transaksi].reverse().slice(0, 5);
@@ -999,7 +1074,6 @@
             const nama = document.getElementById('inputNama').value.trim();
             const jenjang = document.getElementById('inputJenjang').value;
 
-            // Cek Duplikasi NISN jika siswa baru
             if (!document.getElementById('siswaId').value) {
                 if (state.siswa.some(s => s.nisn === nisn)) {
                     showAlert('NISN sudah terdaftar!', 'Gagal Simpan', 'bi-exclamation-circle text-danger');
@@ -1035,7 +1109,6 @@
 
             document.getElementById('qrCodeContainer').classList.add('d-none');
 
-            // Render Tx History
             const historyContainer = document.getElementById('siswaTxHistory');
             historyContainer.innerHTML = '';
             const listTx = state.transaksi.filter(t => t.siswaId === siswaId).reverse();
@@ -1077,14 +1150,14 @@
             modalObj.show();
         }
 
-        // Bagikan Laporan Tabungan Transparan via WhatsApp
         function shareWhatsAppSiswa() {
             const siswa = state.siswa.find(s => s.id === selectedSiswaId);
             if (!siswa) return;
 
             const listTx = state.transaksi.filter(t => t.siswaId === siswa.id).reverse().slice(0, 10);
 
-            let textTf = `*YOK MENABUNG - LAPORAN TABUNGAN SISWA*\n`;
+            let textTf = `*${sekolah.nama.toUpperCase()} - LAPORAN TABUNGAN SISWA*\n`;
+            if (sekolah.npsn) textTf += `NPSN: ${sekolah.npsn}\n`;
             textTf += `==================================\n`;
             textTf += `👤 *Nama:* ${siswa.nama}\n`;
             textTf += `🆔 *NISN:* ${siswa.nisn}\n`;
@@ -1112,7 +1185,6 @@
             window.open(waUrl, '_blank');
         }
 
-        // Revisi Edit Transaksi
         function openModalEditTx(txId) {
             const tx = state.transaksi.find(t => t.id === txId);
             if (!tx) return;
@@ -1163,7 +1235,6 @@
             openDetailSiswa(siswa.id);
         });
 
-        // Hapus Transaksi Tunggal
         function deleteTransaksi(txId) {
             const tx = state.transaksi.find(t => t.id === txId);
             if (!tx) return;
@@ -1212,14 +1283,17 @@
                 <div style="width: 320px; border: 2px solid #0d6efd; border-radius: 12px; padding: 16px; margin: 20px auto; font-family: sans-serif; background: #ffffff; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                     <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; border-bottom:1px solid #dee2e6; padding-bottom:8px;">
                         <img src="logoyokmenabung.png" width="30" height="30" style="border-radius:50%;" onerror="this.style.display='none'">
-                        <span style="font-weight:bold; font-size:15px; color:#0d6efd;">YOK MENABUNG</span>
+                        <div>
+                            <div style="font-weight:bold; font-size:13px; color:#0d6efd;">${sekolah.nama.toUpperCase()}</div>
+                            <div style="font-size:9px; color:#6c757d;">YOK MENABUNG TABUNGAN SISWA</div>
+                        </div>
                     </div>
                     <span style="background:#0d6efd; color:#ffffff; font-size:10px; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${siswa.jenjang}</span>
                     <h5 style="margin:4px 0; font-size:16px; font-weight:bold; color:#212529;">${siswa.nama}</h5>
                     <p style="margin:0 0 10px 0; font-size:12px; color:#6c757d;">NISN: ${siswa.nisn}</p>
                     <div id="printQrcodeContainer" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
                     <div style="font-size:9px; color:#888; border-top:1px dashed #ccc; padding-top:8px;">
-                        Kartu Tabungan Identitas Siswa<br>
+                        Kartu Tabungan Identitas Resmi<br>
                         <strong style="color:#0d6efd;">Powered by Ari GPM</strong>
                     </div>
                 </div>
@@ -1270,7 +1344,6 @@
                 return;
             }
 
-            // Update Saldo
             if (tipe === 'setor') {
                 currentSaldo += nominal;
             } else {
@@ -1278,7 +1351,6 @@
             }
             state.siswa[siswaIndex].saldo = currentSaldo;
 
-            // Catat Transaksi
             state.transaksi.push({
                 id: 'TX_' + Date.now(),
                 siswaId: selectedSiswaId,
@@ -1334,6 +1406,7 @@
         function exportDataJSON() {
             const backupPayload = {
                 state: state,
+                sekolah: sekolah,
                 security: {
                     pin: appPin,
                     sec_phrase: secPhrase,
@@ -1364,6 +1437,10 @@
                     if (importedState.siswa && importedState.transaksi) {
                         showConfirm('Aksi ini akan menggantikan seluruh data saat ini. Lanjutkan?', function() {
                             state = importedState;
+                            if (imported.sekolah) {
+                                sekolah = imported.sekolah;
+                                saveSekolah();
+                            }
                             if (imported.security) {
                                 appPin = imported.security.pin || appPin;
                                 secPhrase = imported.security.sec_phrase || secPhrase;
