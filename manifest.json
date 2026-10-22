@@ -1,7 +1,7 @@
 {
   "name": "Yok Menabung - Aplikasi Tabungan Siswa",
   "short_name": "Yok Menabung",
-  "description": "Aplikasi PWA Tabungan Siswa Murni Offline-First (TK - SMA)",
+  "description": "Aplikasi PWA Tabungan Siswa Offline-First v1.1.0",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
