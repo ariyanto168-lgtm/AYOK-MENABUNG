@@ -99,7 +99,7 @@
             display: block;
         }
 
-        /* LAYAR KUNCI OVERLAY INTEGRATED */
+        /* LAYAR KUNCI OVERLAY ANTI-MACET (Z-Index Tertinggi) */
         #pinLockOverlay {
             position: fixed;
             top: 0;
@@ -107,7 +107,7 @@
             right: 0;
             bottom: 0;
             background: #0d6efd;
-            z-index: 9999;
+            z-index: 99999;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -153,13 +153,12 @@
 </head>
 <body class="theme-default">
 
-    <!-- OVERLAY LAYAR KUNCI & PEMULIHAN PIN TERINTEGRASI (ANTI MACET) -->
+    <!-- OVERLAY LAYAR KUNCI TERINTEGRASI -->
     <div id="pinLockOverlay" class="no-print">
         <div class="card card-custom p-4 text-center bg-white w-100 shadow-lg" style="max-width: 360px;">
             <img src="logoyokmenabung.png" alt="Logo" width="60" height="60" class="mx-auto mb-2 rounded-circle border p-1 bg-light" onerror="this.src='https://via.placeholder.com/60?text=YM'">
             <h5 class="fw-bold text-dark m-0">Yok Menabung</h5>
             
-            <!-- Anti-Phishing Security Badge -->
             <div class="my-2">
                 <span class="badge bg-success-subtle text-success border border-success-subtle p-2 text-wrap" style="font-size:0.72rem;">
                     <i class="bi bi-shield-check me-1"></i> Verified: <span id="secPhraseDisplay" class="fw-bold">Tabungan Resmi Siswa</span>
@@ -199,7 +198,7 @@
 
                     <!-- Result Box if correct -->
                     <div id="forgotResultBox" class="p-2 bg-success-subtle border border-success rounded text-success mb-3 d-none">
-                        <small class="d-block text-muted style=font-size:0.7rem;">PIN Anda adalah:</small>
+                        <small class="d-block text-muted" style="font-size:0.7rem;">PIN Anda adalah:</small>
                         <h4 class="fw-bold my-1 text-dark" id="txtFoundPin">kamunanyak</h4>
                         <button type="button" class="btn btn-success btn-sm w-100 rounded-pill mt-2 fw-bold" onclick="autoLoginWithFoundPin()">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Langsung Masuk
@@ -211,8 +210,8 @@
                     </button>
                 </form>
 
-                <button type="button" class="btn btn-link btn-sm text-decoration-none text-secondary" onclick="showBoxPinLogin()">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Masuk PIN
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-secondary mt-1" onclick="showBoxPinLogin()">
+                    <i class="bi bi-arrow-left me-1"></i> Kembali
                 </button>
             </div>
 
@@ -228,7 +227,7 @@
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.9</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.1.0</span>
             </a>
             <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-outline-light btn-sm px-2 py-1" onclick="lockAppManually()" title="Kunci Aplikasi">
@@ -241,13 +240,12 @@
         </div>
     </nav>
 
-    <!-- Main Container (SPA Pages) -->
+    <!-- Main Container -->
     <main class="container py-2 no-print">
 
         <!-- TAB 1: BERANDA -->
         <section id="sec-beranda" class="page-section active">
             
-            <!-- DASHBOARD KARTU IDENTITAS SEKOLAH -->
             <div class="card card-custom p-3 mb-3 bg-white border-start border-4 border-primary shadow-sm">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
@@ -261,7 +259,6 @@
                 </div>
             </div>
 
-            <!-- Ringkasan Saldo -->
             <div class="card card-custom bg-primary text-white mb-3">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
@@ -272,7 +269,6 @@
                 </div>
             </div>
 
-            <!-- Widget Statistik -->
             <div class="row g-2 mb-3">
                 <div class="col-6">
                     <div class="card card-custom p-2 text-center bg-white">
@@ -288,7 +284,6 @@
                 </div>
             </div>
 
-            <!-- Akses Cepat Mode Input -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-1"></i> Transaksi Cepat</h6>
                 <div class="row g-2">
@@ -307,7 +302,6 @@
                 </div>
             </div>
 
-            <!-- Transaksi Terakhir -->
             <div class="card card-custom p-3 bg-white">
                 <h6 class="fw-bold mb-2">Riwayat Transaksi Terakhir</h6>
                 <div id="recentTxList" class="list-group list-group-flush">
@@ -325,13 +319,11 @@
                 </button>
             </div>
 
-            <!-- Search & Filter -->
             <div class="input-group mb-3 shadow-sm">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                 <input type="text" id="searchSiswaInput" class="form-control border-start-0" placeholder="Cari Nama atau NISN..." oninput="renderSiswaList()">
             </div>
 
-            <!-- List Siswa -->
             <div id="siswaList" class="d-flex flex-column gap-2"></div>
         </section>
 
@@ -339,7 +331,6 @@
         <section id="sec-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Data</h5>
 
-            <!-- PILIHAN TEMA & BACKGROUND CERIA -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-palette me-2 text-primary"></i> Pilihan Tema & Background Ceria</h6>
                 <p class="small text-muted mb-3">Pilih suasana dan motif latar belakang aplikasi yang disukai:</p>
@@ -378,7 +369,6 @@
                 </div>
             </div>
 
-            <!-- Pengaturan Identitas Sekolah -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-building me-2 text-primary"></i> Identitas Sekolah</h6>
                 <p class="small text-muted mb-3">Atur nama sekolah, NPSN, alamat, dan tahun ajaran untuk kartu & laporan.</p>
@@ -387,7 +377,6 @@
                 </button>
             </div>
 
-            <!-- Pengaturan Keamanan PIN & Anti-Phishing -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i> Keamanan PIN & Anti-Phishing</h6>
                 <p class="small text-muted mb-3">Ubah PIN, pertanyaan keamanan pemulihan, dan frasa verifikasi anti-phishing.</p>
@@ -396,7 +385,6 @@
                 </button>
             </div>
 
-            <!-- Backup & Restore Card -->
             <div class="card card-custom p-3 mb-3 bg-white">
                 <h6 class="fw-bold mb-2"><i class="bi bi-database-down me-2 text-primary"></i> Backup & Restore</h6>
                 <p class="small text-muted mb-3">Simpan cadangan data tabungan ke file .json atau pulihkan data dari file backup.</p>
@@ -412,7 +400,6 @@
                 </div>
             </div>
 
-            <!-- Danger Zone -->
             <div class="card card-custom p-3 mb-3 bg-white border-danger border-opacity-25">
                 <h6 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle me-2"></i> Zona Bahaya</h6>
                 <p class="small text-muted mb-2">Menghapus seluruh data siswa dan riwayat transaksi dari penyimpanan HP ini.</p>
@@ -421,12 +408,11 @@
                 </button>
             </div>
 
-            <!-- App Info & Footer -->
             <div class="text-center mt-4">
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.9</p>
+                <p class="small text-secondary fw-semibold">Versi 1.1.0</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -452,12 +438,10 @@
         </div>
     </nav>
 
-    <!-- CONTAINER KHUSUS CETAK KARTU (Hanya Muncul Saat Print) -->
     <div id="printableCardArea" class="d-none"></div>
 
     <!-- ================= MODAL DIALOGS ================= -->
 
-    <!-- Modal Edit Identitas Sekolah -->
     <div class="modal fade no-print" id="modalSekolah" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -490,7 +474,6 @@
         </div>
     </div>
 
-    <!-- Modal Ubah PIN & Anti-Phishing -->
     <div class="modal fade no-print" id="modalUbahPin" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -529,7 +512,6 @@
         </div>
     </div>
 
-    <!-- Modal Kustom Alert / Info -->
     <div class="modal fade no-print" id="customAlertModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content text-center p-3">
@@ -543,7 +525,6 @@
         </div>
     </div>
 
-    <!-- Modal Kustom Konfirmasi -->
     <div class="modal fade no-print" id="customConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content text-center p-3">
@@ -560,7 +541,6 @@
         </div>
     </div>
 
-    <!-- Modal Form Tambah / Edit Siswa -->
     <div class="modal fade no-print" id="modalSiswa" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -589,7 +569,6 @@
                             </select>
                         </div>
 
-                        <!-- Live Auto QR Preview -->
                         <div class="mb-3 text-center p-2 border rounded bg-light">
                             <label class="form-label small fw-semibold text-muted d-block mb-1">Preview Auto QR Identitas</label>
                             <div id="modalSiswaQrPreview" class="d-flex justify-content-center my-1">
@@ -604,7 +583,6 @@
         </div>
     </div>
 
-    <!-- Modal Detail Siswa & Transaksi -->
     <div class="modal fade no-print" id="modalDetailSiswa" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -618,7 +596,6 @@
                         <h5 class="fw-bold m-0" id="detailNamaSiswa">-</h5>
                         <small class="text-muted d-block mb-2" id="detailNisnSiswa">NISN: -</small>
                         
-                        <!-- Tombol Edit & Hapus Siswa -->
                         <div class="d-flex justify-content-center gap-2 mb-2">
                             <button class="btn btn-outline-secondary btn-sm py-1 px-2" style="font-size:0.75rem;" onclick="editSiswa(selectedSiswaId)">
                                 <i class="bi bi-pencil-square me-1"></i>Edit Siswa
@@ -634,7 +611,6 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Aksi Tabungan, Cetak & Share WA -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <button class="btn btn-success btn-sm w-100 btn-action-touch" onclick="openModalTx('setor')">
@@ -674,7 +650,6 @@
         </div>
     </div>
 
-    <!-- Modal Transaksi (Setor / Tarik) -->
     <div class="modal fade no-print" id="modalTx" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
@@ -700,7 +675,6 @@
         </div>
     </div>
 
-    <!-- Modal Edit Transaksi -->
     <div class="modal fade no-print" id="modalEditTx" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
@@ -726,7 +700,6 @@
         </div>
     </div>
 
-    <!-- Modal Pemindai QR Code Kamera -->
     <div class="modal fade no-print" id="modalQRScanner" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -751,7 +724,7 @@
             window.top.location = window.self.location;
         }
 
-        // --- 2. THEME BACKGROUND PALETTE LOGIC ---
+        // --- 2. THEME BACKGROUND PALETTE ---
         let currentTheme = localStorage.getItem('ym_bg_theme') || 'theme-default';
 
         function selectTheme(themeName) {
@@ -767,7 +740,7 @@
             if (activeOpt) activeOpt.classList.add('active');
         }
 
-        // --- 3. IDENTITAS SEKOLAH STORE ---
+        // --- 3. IDENTITAS SEKOLAH ---
         let sekolah = JSON.parse(localStorage.getItem('ym_sekolah')) || {
             nama: "SD Negeri 01 Cerdas",
             npsn: "12345678",
@@ -782,7 +755,6 @@
 
         function renderIdentitasSekolah() {
             document.getElementById('dashNamaSekolah').innerText = sekolah.nama || 'Nama Sekolah Belum Diatur';
-            
             let npsnTxt = sekolah.npsn ? `NPSN: ${sekolah.npsn}` : 'NPSN: -';
             let alamatTxt = sekolah.alamat ? ` | ${sekolah.alamat}` : '';
             document.getElementById('dashNpsnSekolah').innerText = `${npsnTxt}${alamatTxt}`;
@@ -809,7 +781,7 @@
             showAlert('Identitas sekolah berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
         }
 
-        // --- 4. SECURITY & PIN MANAGEMENT (FULLY INTEGRATED IN-CARD) ---
+        // --- 4. KOREKSI TOTAL SECURITY & LAYAR KUNCI ---
         const DEFAULT_PIN = "kamunanyak";
         const DEFAULT_SEC_QUESTION = "Siapa nama pembuat aplikasi ini?";
         const DEFAULT_SEC_ANSWER = "ari gpm";
@@ -833,7 +805,7 @@
                 document.getElementById('pinLockOverlay').style.display = 'none';
                 document.getElementById('inputPinLock').value = '';
                 errEl.classList.add('d-none');
-                startIdleTimer();
+                startIdleTimer(); // Mulai timer menganggur kembali
             } else {
                 errEl.innerText = 'PIN salah! Silakan coba lagi.';
                 errEl.className = 'small text-danger mt-1';
@@ -844,7 +816,23 @@
         function lockAppManually(reason = '') {
             stopIdleTimer();
             stopQRScanner();
+
+            // CORE FIX #1: MENGATASI BUG TOMBOL MACET (FOCUS TRAP MODAL)
+            // Jika layar terkunci saat Modal masih terbuka, sentuhan akan macet. 
+            // Solusi: Tutup paksa seluruh modal yang terbuka sebelum layar PIN dimunculkan.
+            const activeModals = document.querySelectorAll('.modal.show');
+            activeModals.forEach(modalEl => {
+                const modalObj = bootstrap.Modal.getInstance(modalEl);
+                if (modalObj) modalObj.hide();
+            });
+            // Hapus sisa-sisa backdrop hitam bawaan bootstrap
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
             showBoxPinLogin();
+            
             const overlay = document.getElementById('pinLockOverlay');
             overlay.style.display = 'flex';
             document.getElementById('inputPinLock').value = '';
@@ -860,7 +848,7 @@
             }
         }
 
-        // --- TOGGLE BOX LUPA PIN TANPA MODAL ---
+        // MENU PIN TERINTEGRASI DI DALAM KARTU
         function showBoxLupaPin() {
             document.getElementById('txtLupaPinQuestionBox').innerText = secQuestion;
             document.getElementById('inputJawabanBox').value = '';
@@ -944,12 +932,14 @@
             showAlert('PIN, Frasa Anti-Phishing & Keamanan berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
         }
 
-        // --- 5. ANTI REFRESH, TAB SWITCH & AUTO LOGOUT ---
+        // --- 5. CORE FIX #2: MEMORY LEAK LISTENER SILANG ---
         let idleTimer = null;
         const IDLE_TIMEOUT_MS = 2 * 60 * 1000;
 
         function resetIdleTimer() {
-            stopIdleTimer();
+            if (idleTimer) clearTimeout(idleTimer); // Pastikan timer bersih sebelum buat baru
+            
+            // Timer HANYA berjalan jika overlay PIN TIDAK TAMPIL
             if (document.getElementById('pinLockOverlay').style.display === 'none') {
                 idleTimer = setTimeout(() => {
                     lockAppManually('Otomatis terkunci karena tidak ada aktivitas.');
@@ -957,11 +947,14 @@
             }
         }
 
+        // Mencegah kode bertumpuk: Listener didaftarkan HANYA SEKALI ke sistem 
+        // sehingga memori/RAM browser tidak penuh dan membuat HP macet (lag)
+        ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, resetIdleTimer, { passive: true });
+        });
+
         function startIdleTimer() {
             resetIdleTimer();
-            ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach(evt => {
-                window.addEventListener(evt, resetIdleTimer, { passive: true });
-            });
         }
 
         function stopIdleTimer() {
