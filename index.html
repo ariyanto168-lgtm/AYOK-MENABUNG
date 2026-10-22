@@ -72,17 +72,37 @@
         .page-section.active {
             display: block;
         }
+
+        /* STYLES KHUSUS MODO CETAK (PRINT) */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableCardArea, #printableCardArea * {
+                visibility: visible;
+            }
+            #printableCardArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- Top Navbar -->
-    <nav class="navbar navbar-expand navbar-dark bg-primary fixed-top top-navbar px-3">
+    <nav class="navbar navbar-expand navbar-dark bg-primary fixed-top top-navbar px-3 no-print">
         <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.2</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.3</span>
             </a>
             <button id="pwaInstallBtn" class="btn btn-warning btn-sm fw-bold d-none align-items-center gap-1 shadow-sm">
                 <i class="bi bi-download"></i> Instal App
@@ -91,7 +111,7 @@
     </nav>
 
     <!-- Main Container (SPA Pages) -->
-    <main class="container py-2">
+    <main class="container py-2 no-print">
 
         <!-- TAB 1: BERANDA -->
         <section id="sec-beranda" class="page-section active">
@@ -203,7 +223,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.2</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.3</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -212,7 +232,7 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav no-print">
         <div class="d-flex justify-content-around">
             <a href="#" class="nav-link flex-fill active" id="nav-sec-beranda" onclick="switchTab('sec-beranda')">
                 <i class="bi bi-house-door"></i>
@@ -229,10 +249,13 @@
         </div>
     </nav>
 
+    <!-- CONTAINER KHUSUS CETAK KARTU (Hanya Muncul Saat Print) -->
+    <div id="printableCardArea" class="d-none"></div>
+
     <!-- ================= MODAL DIALOGS (ANTI-POPUP) ================= -->
 
     <!-- Modal Kustom Alert / Info -->
-    <div class="modal fade" id="customAlertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="customAlertModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content text-center p-3">
                 <div class="modal-body p-2">
@@ -246,7 +269,7 @@
     </div>
 
     <!-- Modal Kustom Konfirmasi -->
-    <div class="modal fade" id="customConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="customConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content text-center p-3">
                 <div class="modal-body p-2">
@@ -262,8 +285,8 @@
         </div>
     </div>
 
-    <!-- Modal Form Tambah / Edit Siswa -->
-    <div class="modal fade" id="modalSiswa" tabindex="-1" aria-hidden="true">
+    <!-- Modal Form Tambah / Edit Siswa (Lengkap dengan Live Auto QR Preview) -->
+    <div class="modal fade no-print" id="modalSiswa" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -275,11 +298,11 @@
                         <input type="hidden" id="siswaId">
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">NISN / ID Siswa</label>
-                            <input type="number" id="inputNisn" class="form-control" placeholder="Contoh: 0081234567" required>
+                            <input type="number" id="inputNisn" class="form-control" placeholder="Contoh: 0081234567" required oninput="updateFormQrPreview()">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">Nama Lengkap</label>
-                            <input type="text" id="inputNama" class="form-control" placeholder="Nama lengkap siswa" required>
+                            <label class="form-label small fw-semibold">Nama Lengkap Siswa</label>
+                            <input type="text" id="inputNama" class="form-control" placeholder="Nama lengkap siswa" required oninput="updateFormQrPreview()">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Jenjang Sekolah</label>
@@ -290,6 +313,15 @@
                                 <option value="SMA">SMA / SMK / MA</option>
                             </select>
                         </div>
+
+                        <!-- Live Auto QR Preview saat input -->
+                        <div class="mb-3 text-center p-2 border rounded bg-light">
+                            <label class="form-label small fw-semibold text-muted d-block mb-1">Preview Auto QR Identitas</label>
+                            <div id="modalSiswaQrPreview" class="d-flex justify-content-center my-1">
+                                <small class="text-muted" style="font-size: 0.75rem;">Ketik NISN/Nama di atas untuk membuat QR</small>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Data Siswa</button>
                     </form>
                 </div>
@@ -298,7 +330,7 @@
     </div>
 
     <!-- Modal Detail Siswa & Transaksi -->
-    <div class="modal fade" id="modalDetailSiswa" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="modalDetailSiswa" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-light">
@@ -316,7 +348,7 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Aksi Tabungan -->
+                    <!-- Tombol Aksi Tabungan & Cetak QR -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <button class="btn btn-success btn-sm w-100" onclick="openModalTx('setor')">
@@ -332,8 +364,14 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <small class="fw-bold">Kartu QR Siswa</small>
-                        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="toggleQRView()">Tampilkan QR</button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm px-2 py-1" style="font-size:0.75rem;" onclick="printCardSiswa()">
+                                <i class="bi bi-printer me-1"></i> Cetak QR
+                            </button>
+                            <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="toggleQRView()">Lihat QR</button>
+                        </div>
                     </div>
+                    
                     <div id="qrCodeContainer" class="text-center p-2 border rounded d-none mb-3 bg-white">
                         <div id="qrcode" class="d-flex justify-content-center mb-1"></div>
                         <small class="text-muted" style="font-size:0.7rem;">Scan QR ini untuk transaksi cepat</small>
@@ -348,7 +386,7 @@
     </div>
 
     <!-- Modal Transaksi (Setor / Tarik) -->
-    <div class="modal fade" id="modalTx" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="modalTx" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
@@ -374,7 +412,7 @@
     </div>
 
     <!-- Modal Pemindai QR Code Kamera -->
-    <div class="modal fade" id="modalQRScanner" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="modalQRScanner" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -527,7 +565,28 @@
             document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
             document.getElementById('formSiswa').reset();
             document.getElementById('siswaId').value = '';
+            document.getElementById('modalSiswaQrPreview').innerHTML = '<small class="text-muted" style="font-size:0.75rem;">Ketik NISN/Nama di atas untuk membuat QR</small>';
             new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+        }
+
+        // Live Auto-QR Generator saat Input Form Siswa
+        function updateFormQrPreview() {
+            const nisn = document.getElementById('inputNisn').value.trim();
+            const nama = document.getElementById('inputNama').value.trim();
+            const previewContainer = document.getElementById('modalSiswaQrPreview');
+            
+            previewContainer.innerHTML = '';
+
+            const qrText = nisn || nama;
+            if (qrText.length > 0) {
+                new QRCode(previewContainer, {
+                    text: qrText,
+                    width: 90,
+                    height: 90
+                });
+            } else {
+                previewContainer.innerHTML = '<small class="text-muted" style="font-size:0.75rem;">Ketik NISN/Nama di atas untuk membuat QR</small>';
+            }
         }
 
         document.getElementById('formSiswa').addEventListener('submit', function(e) {
@@ -617,6 +676,40 @@
             } else {
                 container.classList.add('d-none');
             }
+        }
+
+        // --- FITUR CETAK KARTU / QR CODE SISWA ---
+        function printCardSiswa() {
+            const siswa = state.siswa.find(s => s.id === selectedSiswaId);
+            if (!siswa) return;
+
+            const printArea = document.getElementById('printableCardArea');
+            printArea.innerHTML = `
+                <div style="width: 320px; border: 2px solid #0d6efd; border-radius: 12px; padding: 16px; margin: 20px auto; font-family: sans-serif; background: #ffffff; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; border-bottom:1px solid #dee2e6; padding-bottom:8px;">
+                        <img src="logoyokmenabung.png" width="30" height="30" style="border-radius:50%;" onerror="this.style.display='none'">
+                        <span style="font-weight:bold; font-size:15px; color:#0d6efd;">YOK MENABUNG</span>
+                    </div>
+                    <span style="background:#0d6efd; color:#ffffff; font-size:10px; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${siswa.jenjang}</span>
+                    <h5 style="margin:4px 0; font-size:16px; font-weight:bold; color:#212529;">${siswa.nama}</h5>
+                    <p style="margin:0 0 10px 0; font-size:12px; color:#6c757d;">NISN: ${siswa.nisn}</p>
+                    <div id="printQrcodeContainer" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
+                    <div style="font-size:9px; color:#888; border-top:1px dashed #ccc; padding-top:8px;">
+                        Kartu Tabungan Identitas Siswa<br>
+                        <strong style="color:#0d6efd;">Powered by Ari GPM</strong>
+                    </div>
+                </div>
+            `;
+
+            new QRCode(document.getElementById("printQrcodeContainer"), {
+                text: siswa.nisn,
+                width: 130,
+                height: 130
+            });
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
         function openModalTx(tipe) {
