@@ -132,7 +132,7 @@
                 Lupa PIN?
             </button>
             <div class="mt-3 pt-2 border-top">
-                <small class="text-secondary style=font-size:0.7rem;">Powered by Ari GPM</small>
+                <small class="text-secondary" style="font-size:0.7rem;">Powered by Ari GPM</small>
             </div>
         </div>
     </div>
@@ -143,7 +143,7 @@
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.4</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.5</span>
             </a>
             <button id="pwaInstallBtn" class="btn btn-warning btn-sm fw-bold d-none align-items-center gap-1 shadow-sm">
                 <i class="bi bi-download"></i> Instal App
@@ -273,7 +273,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.4</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.5</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -338,7 +338,7 @@
         </div>
     </div>
 
-    <!-- Modal Ubah PIN & Pertanyaan Keamanan (dari Tab Pengaturan) -->
+    <!-- Modal Ubah PIN & Pertanyaan Keamanan -->
     <div class="modal fade no-print" id="modalUbahPin" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -432,7 +432,7 @@
                             </select>
                         </div>
 
-                        <!-- Live Auto QR Preview saat input -->
+                        <!-- Live Auto QR Preview -->
                         <div class="mb-3 text-center p-2 border rounded bg-light">
                             <label class="form-label small fw-semibold text-muted d-block mb-1">Preview Auto QR Identitas</label>
                             <div id="modalSiswaQrPreview" class="d-flex justify-content-center my-1">
@@ -459,14 +459,25 @@
                     <div class="text-center mb-3">
                         <span id="detailBadgeJenjang" class="badge bg-primary badge-jenjang mb-1">SD</span>
                         <h5 class="fw-bold m-0" id="detailNamaSiswa">-</h5>
-                        <small class="text-muted" id="detailNisnSiswa">NISN: -</small>
-                        <div class="mt-2 p-2 bg-primary-subtle rounded-3">
+                        <small class="text-muted d-block mb-2" id="detailNisnSiswa">NISN: -</small>
+                        
+                        <!-- Tombol Edit & Hapus Siswa -->
+                        <div class="d-flex justify-content-center gap-2 mb-2">
+                            <button class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="editSiswa(selectedSiswaId)">
+                                <i class="bi bi-pencil-square me-1"></i>Edit Siswa
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="deleteSiswa(selectedSiswaId)">
+                                <i class="bi bi-trash me-1"></i>Hapus Siswa
+                            </button>
+                        </div>
+
+                        <div class="p-2 bg-primary-subtle rounded-3">
                             <small class="text-muted d-block">Saldo Tabungan saat ini:</small>
                             <h3 class="fw-bold text-primary m-0" id="detailSaldoSiswa">Rp 0</h3>
                         </div>
                     </div>
 
-                    <!-- Tombol Aksi Tabungan & Cetak QR -->
+                    <!-- Tombol Aksi Tabungan, Cetak & Share WA -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <button class="btn btn-success btn-sm w-100" onclick="openModalTx('setor')">
@@ -481,12 +492,15 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <small class="fw-bold">Kartu QR Siswa</small>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-primary btn-sm px-2 py-1" style="font-size:0.75rem;" onclick="printCardSiswa()">
-                                <i class="bi bi-printer me-1"></i> Cetak QR
+                        <small class="fw-bold">Aksi Transparansi & QR</small>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-success btn-sm px-2 py-1" style="font-size:0.75rem;" onclick="shareWhatsAppSiswa()">
+                                <i class="bi bi-whatsapp me-1"></i>Laporan WA
                             </button>
-                            <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="toggleQRView()">Lihat QR</button>
+                            <button class="btn btn-outline-primary btn-sm px-2 py-1" style="font-size:0.75rem;" onclick="printCardSiswa()">
+                                <i class="bi bi-printer me-1"></i>Cetak QR
+                            </button>
+                            <button class="btn btn-link btn-sm p-0 ms-1 text-decoration-none" onclick="toggleQRView()">Lihat QR</button>
                         </div>
                     </div>
                     
@@ -496,7 +510,7 @@
                     </div>
 
                     <h6 class="fw-bold small mb-2">Riwayat Transaksi Siswa</h6>
-                    <div id="siswaTxHistory" class="list-group list-group-flush border rounded" style="max-height: 180px; overflow-y: auto;">
+                    <div id="siswaTxHistory" class="list-group list-group-flush border rounded" style="max-height: 200px; overflow-y: auto;">
                     </div>
                 </div>
             </div>
@@ -523,6 +537,32 @@
                             <input type="text" id="txKet" class="form-control form-control-sm" placeholder="Contoh: Tabungan mingguan">
                         </div>
                         <button type="submit" id="btnSubmitTx" class="btn btn-success w-100 rounded-pill">Proses Transaksi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Transaksi -->
+    <div class="modal fade no-print" id="modalEditTx" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold">Revisi / Edit Transaksi</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditTx">
+                        <input type="hidden" id="editTxId">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Nominal Baru (Rp)</label>
+                            <input type="number" id="editTxNominal" class="form-control form-control-lg" min="500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Keterangan</label>
+                            <input type="text" id="editTxKet" class="form-control form-control-sm">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Perubahan</button>
                     </form>
                 </div>
             </div>
@@ -599,7 +639,6 @@
                 return;
             }
 
-            // Simpan PIN Baru
             appPin = newPin;
             localStorage.setItem('ym_pin', appPin);
 
@@ -733,7 +772,7 @@
             });
         }
 
-        // --- MANAJEMEN SISWA ---
+        // --- MANAJEMEN SISWA & REVISI EDIT/HAPUS ---
         function renderSiswaList() {
             const container = document.getElementById('siswaList');
             const keyword = document.getElementById('searchSiswaInput').value.toLowerCase();
@@ -780,7 +819,38 @@
             new bootstrap.Modal(document.getElementById('modalSiswa')).show();
         }
 
-        // Live Auto-QR Generator saat Input Form Siswa
+        function editSiswa(siswaId) {
+            const siswa = state.siswa.find(s => s.id === siswaId);
+            if (!siswa) return;
+
+            document.getElementById('modalSiswaTitle').innerText = 'Edit Data Siswa';
+            document.getElementById('siswaId').value = siswa.id;
+            document.getElementById('inputNisn').value = siswa.nisn;
+            document.getElementById('inputNama').value = siswa.nama;
+            document.getElementById('inputJenjang').value = siswa.jenjang;
+
+            updateFormQrPreview();
+
+            const modalDetail = bootstrap.Modal.getInstance(document.getElementById('modalDetailSiswa'));
+            if (modalDetail) modalDetail.hide();
+            new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+        }
+
+        function deleteSiswa(siswaId) {
+            const siswa = state.siswa.find(s => s.id === siswaId);
+            if (!siswa) return;
+
+            showConfirm(`Hapus siswa "${siswa.nama}"? Seluruh riwayat transaksi siswa ini juga akan dihapus permanen!`, function() {
+                state.siswa = state.siswa.filter(s => s.id !== siswaId);
+                state.transaksi = state.transaksi.filter(t => t.siswaId !== siswaId);
+                saveData();
+                const modalDetail = bootstrap.Modal.getInstance(document.getElementById('modalDetailSiswa'));
+                if (modalDetail) modalDetail.hide();
+                showAlert('Data siswa dan seluruh riwayat transaksinya telah dihapus.', 'Siswa Dihapus', 'bi-trash text-success');
+                renderSiswaList();
+            }, 'Hapus Data Siswa');
+        }
+
         function updateFormQrPreview() {
             const nisn = document.getElementById('inputNisn').value.trim();
             const nama = document.getElementById('inputNama').value.trim();
@@ -830,7 +900,7 @@
             renderSiswaList();
         });
 
-        // --- DETAIL & TRANSAKSI SISWA ---
+        // --- DETAIL, REVISI TRANSAKSI & SHARE WA ---
         function openDetailSiswa(siswaId) {
             const siswa = state.siswa.find(s => s.id === siswaId);
             if (!siswa) return;
@@ -841,10 +911,9 @@
             document.getElementById('detailBadgeJenjang').innerText = siswa.jenjang;
             document.getElementById('detailSaldoSiswa').innerText = formatRupiah(siswa.saldo || 0);
 
-            // Hide QR Container default
             document.getElementById('qrCodeContainer').classList.add('d-none');
 
-            // Render Tx History
+            // Render Tx History dengan Aksi Edit & Hapus Per Transaksi
             const historyContainer = document.getElementById('siswaTxHistory');
             historyContainer.innerHTML = '';
             const listTx = state.transaksi.filter(t => t.siswaId === siswaId).reverse();
@@ -857,18 +926,140 @@
                     historyContainer.innerHTML += `
                         <div class="list-group-item p-2 d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="fw-bold d-block">${t.ket || (isSetor ? 'Setor Tunai' : 'Tarik Tunai')}</small>
+                                <small class="fw-bold d-block text-dark">${t.ket || (isSetor ? 'Setor Tunai' : 'Tarik Tunai')}</small>
                                 <small class="text-muted" style="font-size:0.65rem;">${formatTanggal(t.tanggal)}</small>
                             </div>
-                            <span class="fw-bold small ${isSetor ? 'text-success' : 'text-danger'}">
-                                ${isSetor ? '+' : '-'}${formatRupiah(t.nominal)}
-                            </span>
+                            <div class="text-end">
+                                <span class="fw-bold small ${isSetor ? 'text-success' : 'text-danger'} d-block">
+                                    ${isSetor ? '+' : '-'}${formatRupiah(t.nominal)}
+                                </span>
+                                <div class="btn-group btn-group-sm mt-1">
+                                    <button class="btn btn-light btn-sm p-0 px-1 text-primary border" title="Edit Transaksi" onclick="openModalEditTx('${t.id}')">
+                                        <i class="bi bi-pencil-square" style="font-size:0.75rem;"></i>
+                                    </button>
+                                    <button class="btn btn-light btn-sm p-0 px-1 text-danger border" title="Hapus Transaksi" onclick="deleteTransaksi('${t.id}')">
+                                        <i class="bi bi-trash" style="font-size:0.75rem;"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
             }
 
-            new bootstrap.Modal(document.getElementById('modalDetailSiswa')).show();
+            const modalEl = document.getElementById('modalDetailSiswa');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) {
+                modalObj = new bootstrap.Modal(modalEl);
+            }
+            modalObj.show();
+        }
+
+        // Bagikan Laporan Tabungan Transparan via WhatsApp
+        function shareWhatsAppSiswa() {
+            const siswa = state.siswa.find(s => s.id === selectedSiswaId);
+            if (!siswa) return;
+
+            const listTx = state.transaksi.filter(t => t.siswaId === siswa.id).reverse().slice(0, 10);
+
+            let textTf = `*YOK MENABUNG - LAPORAN TABUNGAN SISWA*\n`;
+            textTf += `==================================\n`;
+            textTf += `👤 *Nama:* ${siswa.nama}\n`;
+            textTf += `🆔 *NISN:* ${siswa.nisn}\n`;
+            textTf += `🏫 *Jenjang:* ${siswa.jenjang}\n`;
+            textTf += `💰 *Total Saldo Saat Ini:* ${formatRupiah(siswa.saldo || 0)}\n`;
+            textTf += `==================================\n`;
+            textTf += `📜 *Riwayat Transaksi Terakhir:*\n`;
+
+            if (listTx.length === 0) {
+                textTf += `_Belum ada riwayat transaksi._\n`;
+            } else {
+                listTx.forEach((t, i) => {
+                    const tipeStr = t.tipe === 'setor' ? 'Setor (+)' : 'Tarik (-)';
+                    const tgl = formatTanggalShort(t.tanggal);
+                    const ketStr = t.ket ? ` (${t.ket})` : '';
+                    textTf += `${i + 1}. [${tgl}] ${tipeStr} ${formatRupiah(t.nominal)}${ketStr}\n`;
+                });
+            }
+
+            textTf += `==================================\n`;
+            textTf += `_Laporan transparansi resmi ditarik dari aplikasi Yok Menabung._\n`;
+            textTf += `*Powered by Ari GPM*`;
+
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(textTf)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Revisi Edit Transaksi
+        function openModalEditTx(txId) {
+            const tx = state.transaksi.find(t => t.id === txId);
+            if (!tx) return;
+
+            document.getElementById('editTxId').value = txId;
+            document.getElementById('editTxNominal').value = tx.nominal;
+            document.getElementById('editTxKet').value = tx.ket || '';
+
+            new bootstrap.Modal(document.getElementById('modalEditTx')).show();
+        }
+
+        document.getElementById('formEditTx').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const txId = document.getElementById('editTxId').value;
+            const newNominal = parseInt(document.getElementById('editTxNominal').value) || 0;
+            const newKet = document.getElementById('editTxKet').value.trim();
+
+            const txIndex = state.transaksi.findIndex(t => t.id === txId);
+            if (txIndex < 0) return;
+
+            const tx = state.transaksi[txIndex];
+            const siswaIndex = state.siswa.findIndex(s => s.id === tx.siswaId);
+            if (siswaIndex < 0) return;
+
+            let siswa = state.siswa[siswaIndex];
+            let selisih = newNominal - tx.nominal;
+
+            if (tx.tipe === 'setor') {
+                if (siswa.saldo + selisih < 0) {
+                    showAlert('Perubahan nominal setor membuat saldo menjadi minus!', 'Gagal Edit', 'bi-exclamation-triangle text-danger');
+                    return;
+                }
+                siswa.saldo += selisih;
+            } else { // tarik
+                if (siswa.saldo - selisih < 0) {
+                    showAlert('Saldo siswa tidak mencukupi untuk penarikan sebesar ini!', 'Gagal Edit', 'bi-exclamation-triangle text-danger');
+                    return;
+                }
+                siswa.saldo -= selisih;
+            }
+
+            tx.nominal = newNominal;
+            tx.ket = newKet;
+
+            saveData();
+            bootstrap.Modal.getInstance(document.getElementById('modalEditTx')).hide();
+            showAlert('Transaksi berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+            openDetailSiswa(siswa.id);
+        });
+
+        // Hapus Transaksi Tunggal
+        function deleteTransaksi(txId) {
+            const tx = state.transaksi.find(t => t.id === txId);
+            if (!tx) return;
+
+            showConfirm('Apakah Anda yakin ingin menghapus catatan transaksi ini?', function() {
+                const siswaIndex = state.siswa.findIndex(s => s.id === tx.siswaId);
+                if (siswaIndex >= 0) {
+                    if (tx.tipe === 'setor') {
+                        state.siswa[siswaIndex].saldo -= tx.nominal;
+                    } else {
+                        state.siswa[siswaIndex].saldo += tx.nominal;
+                    }
+                }
+                state.transaksi = state.transaksi.filter(t => t.id !== txId);
+                saveData();
+                showAlert('Transaksi berhasil dihapus.', 'Sukses', 'bi-check-circle text-success');
+                openDetailSiswa(tx.siswaId);
+            }, 'Hapus Transaksi');
         }
 
         function toggleQRView() {
@@ -1045,7 +1236,6 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    // Support baik format backup lama maupun baru
                     const importedState = imported.state || imported;
                     
                     if (importedState.siswa && importedState.transaksi) {
@@ -1090,6 +1280,11 @@
         function formatTanggal(isoString) {
             const d = new Date(isoString);
             return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTanggalShort(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
         }
 
         // --- PWA SERVICE WORKER & INSTALL BANNER ---
