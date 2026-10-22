@@ -23,9 +23,11 @@
             padding-top: 65px;
             padding-bottom: 75px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            touch-action: manipulation;
         }
         .top-navbar {
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1020;
         }
         .bottom-nav {
             position: fixed;
@@ -34,7 +36,7 @@
             right: 0;
             background: #ffffff;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1030;
+            z-index: 1020;
         }
         .bottom-nav .nav-link {
             color: #6c757d;
@@ -73,7 +75,7 @@
             display: block;
         }
 
-        /* LAYAR KUNCI PIN OVERLAY FULLSCREEN */
+        /* LAYAR KUNCI OVERLAY (Z-Index diatur di bawah Modal Bootstrap) */
         #pinLockOverlay {
             position: fixed;
             top: 0;
@@ -81,11 +83,25 @@
             right: 0;
             bottom: 0;
             background: #0d6efd;
-            z-index: 99999;
+            z-index: 1030;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* MEMASTIKAN MODAL BOOTSTRAP TAMPIL DI ATAS OVERLAY PIN LOCK */
+        .modal {
+            z-index: 1060 !important;
+        }
+        .modal-backdrop {
+            z-index: 1050 !important;
+        }
+
+        /* RESPONSIVE TOUCH & CARD */
+        .btn-action-touch {
+            min-height: 44px;
         }
 
         /* STYLES KHUSUS MODO CETAK (PRINT) */
@@ -116,14 +132,22 @@
         <div class="card card-custom p-4 text-center bg-white w-100 shadow-lg" style="max-width: 360px;">
             <img src="logoyokmenabung.png" alt="Logo" width="64" height="64" class="mx-auto mb-2 rounded-circle border p-1 bg-light" onerror="this.src='https://via.placeholder.com/64?text=YM'">
             <h5 class="fw-bold text-dark m-0">Yok Menabung</h5>
-            <p class="small text-muted mb-3">Masukkan PIN untuk membuka aplikasi</p>
+            
+            <!-- Anti-Phishing Security Badge -->
+            <div class="my-2">
+                <span class="badge bg-success-subtle text-success border border-success-subtle p-2 text-wrap" style="font-size:0.72rem;">
+                    <i class="bi bi-shield-check me-1"></i> Verified: <span id="secPhraseDisplay" class="fw-bold">Tabungan Resmi Siswa</span>
+                </span>
+            </div>
+
+            <p class="small text-muted mb-2">Masukkan PIN untuk membuka aplikasi</p>
 
             <form id="formPinLock" onsubmit="verifyPin(event)">
                 <div class="mb-3">
                     <input type="password" id="inputPinLock" class="form-control form-control-lg text-center fw-bold" placeholder="Masukkan PIN" required autocomplete="off">
                     <div id="pinErrorMsg" class="small text-danger mt-1 d-none">PIN salah! Silakan coba lagi.</div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mb-2 btn-action-touch">
                     <i class="bi bi-unlock-fill me-1"></i> Masuk Aplikasi
                 </button>
             </form>
@@ -143,11 +167,16 @@
             <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
                 <img src="logoyokmenabung.png" alt="Logo" width="32" height="32" class="rounded-circle bg-white p-1" onerror="this.src='https://via.placeholder.com/32?text=YM'">
                 <span class="fw-bold fs-6">Yok Menabung</span>
-                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.5</span>
+                <span class="badge bg-light text-primary border ms-1" style="font-size: 0.65rem;">v1.0.6</span>
             </a>
-            <button id="pwaInstallBtn" class="btn btn-warning btn-sm fw-bold d-none align-items-center gap-1 shadow-sm">
-                <i class="bi bi-download"></i> Instal App
-            </button>
+            <div class="d-flex align-items-center gap-1">
+                <button class="btn btn-outline-light btn-sm px-2 py-1" onclick="lockAppManually()" title="Kunci Aplikasi">
+                    <i class="bi bi-lock-fill"></i>
+                </button>
+                <button id="pwaInstallBtn" class="btn btn-warning btn-sm fw-bold d-none align-items-center gap-1 shadow-sm">
+                    <i class="bi bi-download"></i> Instal
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -188,13 +217,13 @@
                 <h6 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-1"></i> Transaksi Cepat</h6>
                 <div class="row g-2">
                     <div class="col-6">
-                        <button class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center gap-1" onclick="openQRScanner()">
+                        <button class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center gap-1 btn-action-touch" onclick="openQRScanner()">
                             <i class="bi bi-qr-code-scan fs-3"></i>
                             <span class="small fw-semibold">Scan QR Siswa</span>
                         </button>
                     </div>
                     <div class="col-6">
-                        <button class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center gap-1" onclick="switchTab('sec-data')">
+                        <button class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center gap-1 btn-action-touch" onclick="switchTab('sec-data')">
                             <i class="bi bi-search fs-3"></i>
                             <span class="small fw-semibold">Pilih Manual</span>
                         </button>
@@ -215,7 +244,7 @@
         <section id="sec-data" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold m-0">Data Siswa</h5>
-                <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="openModalTambahSiswa()">
+                <button class="btn btn-primary btn-sm rounded-pill px-3 py-1 btn-action-touch" onclick="openModalTambahSiswa()">
                     <i class="bi bi-plus-lg me-1"></i> Siswa
                 </button>
             </div>
@@ -234,12 +263,12 @@
         <section id="sec-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Data</h5>
 
-            <!-- Pengaturan Keamanan PIN -->
+            <!-- Pengaturan Keamanan PIN & Anti-Phishing -->
             <div class="card card-custom p-3 mb-3 bg-white">
-                <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i> Keamanan PIN</h6>
-                <p class="small text-muted mb-3">Ubah PIN aplikasi dan pertanyaan keamanan pemulihan.</p>
-                <button class="btn btn-outline-primary btn-sm w-100" onclick="openModalUbahPin()">
-                    <i class="bi bi-key me-1"></i> Ubah PIN & Pertanyaan Keamanan
+                <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i> Keamanan PIN & Anti-Phishing</h6>
+                <p class="small text-muted mb-3">Ubah PIN, pertanyaan keamanan pemulihan, dan frasa verifikasi anti-phishing.</p>
+                <button class="btn btn-outline-primary btn-sm w-100 btn-action-touch" onclick="openModalUbahPin()">
+                    <i class="bi bi-key me-1"></i> Ubah PIN & Frasa Keamanan
                 </button>
             </div>
 
@@ -249,10 +278,10 @@
                 <p class="small text-muted mb-3">Simpan cadangan data tabungan ke file .json atau pulihkan data dari file backup.</p>
                 
                 <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-outline-primary flex-fill btn-sm" onclick="exportDataJSON()">
+                    <button class="btn btn-outline-primary flex-fill btn-sm btn-action-touch" onclick="exportDataJSON()">
                         <i class="bi bi-download me-1"></i> Export Backup (.json)
                     </button>
-                    <label class="btn btn-outline-success flex-fill btn-sm m-0">
+                    <label class="btn btn-outline-success flex-fill btn-sm m-0 btn-action-touch d-flex align-items-center justify-content-center">
                         <i class="bi bi-upload me-1"></i> Import Backup
                         <input type="file" id="importFileInput" accept=".json" class="d-none" onchange="importDataJSON(event)">
                     </label>
@@ -263,7 +292,7 @@
             <div class="card card-custom p-3 mb-3 bg-white border-danger border-opacity-25">
                 <h6 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle me-2"></i> Zona Bahaya</h6>
                 <p class="small text-muted mb-2">Menghapus seluruh data siswa dan riwayat transaksi dari penyimpanan HP ini.</p>
-                <button class="btn btn-outline-danger btn-sm w-100" onclick="confirmResetAllData()">
+                <button class="btn btn-outline-danger btn-sm w-100 btn-action-touch" onclick="confirmResetAllData()">
                     <i class="bi bi-trash me-1"></i> Hapus Seluruh Data
                 </button>
             </div>
@@ -273,7 +302,7 @@
                 <img src="logoyokmenabung.png" alt="Logo" width="48" class="mb-2 opacity-75" onerror="this.style.display='none'">
                 <h6 class="fw-bold text-dark m-0">Yok Menabung</h6>
                 <p class="small text-muted mb-1">Aplikasi Tabungan Siswa Offline-First (TK - SMA)</p>
-                <p class="small text-secondary fw-semibold">Versi 1.0.5</p>
+                <p class="small text-secondary fw-semibold">Versi 1.0.6</p>
                 <hr class="my-3 opacity-25">
                 <p class="small text-primary fw-bold">Powered by Ari GPM</p>
             </div>
@@ -302,7 +331,7 @@
     <!-- CONTAINER KHUSUS CETAK KARTU (Hanya Muncul Saat Print) -->
     <div id="printableCardArea" class="d-none"></div>
 
-    <!-- ================= MODAL DIALOGS (ANTI-POPUP) ================= -->
+    <!-- ================= MODAL DIALOGS (ANTI-POPUP BROWSER) ================= -->
 
     <!-- Modal Lupa PIN -->
     <div class="modal fade no-print" id="modalLupaPin" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -331,19 +360,19 @@
                             <label class="form-label small fw-semibold">Konfirmasi PIN Baru</label>
                             <input type="password" id="inputKonfirmasiPinBaruLupa" class="form-control" placeholder="Ulangi PIN baru" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Reset & Buat PIN Baru</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Reset & Buat PIN Baru</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Ubah PIN & Pertanyaan Keamanan -->
+    <!-- Modal Ubah PIN & Anti-Phishing -->
     <div class="modal fade no-print" id="modalUbahPin" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title fw-bold">Ubah PIN & Pertanyaan Keamanan</h6>
+                    <h6 class="modal-title fw-bold">Ubah PIN & Keamanan</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -358,6 +387,11 @@
                         </div>
                         <hr>
                         <div class="mb-3">
+                            <label class="form-label small fw-semibold">Frasa Anti-Phishing Rahasia Anda</label>
+                            <input type="text" id="inputSecPhraseSet" class="form-control" placeholder="Contoh: Tabungan Resmi Ari" required>
+                            <small class="text-muted" style="font-size:0.7rem;">Frasa ini muncul di layar masuk untuk menandakan aplikasi asli Anda.</small>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label small fw-semibold">Pertanyaan Keamanan Baru</label>
                             <input type="text" id="inputQuestionSet" class="form-control" placeholder="Contoh: Nama hewan peliharaan pertama?" required>
                         </div>
@@ -365,7 +399,7 @@
                             <label class="form-label small fw-semibold">Jawaban Keamanan Baru</label>
                             <input type="text" id="inputAnswerSet" class="form-control" placeholder="Jawaban rahasia Anda" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Perubahan PIN</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Perubahan Keamanan</button>
                     </form>
                 </div>
             </div>
@@ -380,7 +414,7 @@
                     <i id="alertIcon" class="bi bi-info-circle fs-1 text-primary mb-2 d-block"></i>
                     <h6 id="alertTitle" class="fw-bold mb-2">Informasi</h6>
                     <p id="alertMessage" class="small text-muted mb-3"></p>
-                    <button type="button" class="btn btn-primary btn-sm w-100 rounded-pill" data-bs-dismiss="modal">OK</button>
+                    <button type="button" class="btn btn-primary btn-sm w-100 rounded-pill py-2" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
@@ -395,8 +429,8 @@
                     <h6 id="confirmTitle" class="fw-bold mb-2">Konfirmasi</h6>
                     <p id="confirmMessage" class="small text-muted mb-3"></p>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-light btn-sm flex-fill rounded-pill" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" id="confirmOkBtn" class="btn btn-danger btn-sm flex-fill rounded-pill">Ya, Lanjutkan</button>
+                        <button type="button" class="btn btn-light btn-sm flex-fill rounded-pill py-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" id="confirmOkBtn" class="btn btn-danger btn-sm flex-fill rounded-pill py-2">Ya, Lanjutkan</button>
                     </div>
                 </div>
             </div>
@@ -440,7 +474,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Data Siswa</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Data Siswa</button>
                     </form>
                 </div>
             </div>
@@ -463,10 +497,10 @@
                         
                         <!-- Tombol Edit & Hapus Siswa -->
                         <div class="d-flex justify-content-center gap-2 mb-2">
-                            <button class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="editSiswa(selectedSiswaId)">
+                            <button class="btn btn-outline-secondary btn-sm py-1 px-2" style="font-size:0.75rem;" onclick="editSiswa(selectedSiswaId)">
                                 <i class="bi bi-pencil-square me-1"></i>Edit Siswa
                             </button>
-                            <button class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="deleteSiswa(selectedSiswaId)">
+                            <button class="btn btn-outline-danger btn-sm py-1 px-2" style="font-size:0.75rem;" onclick="deleteSiswa(selectedSiswaId)">
                                 <i class="bi bi-trash me-1"></i>Hapus Siswa
                             </button>
                         </div>
@@ -480,12 +514,12 @@
                     <!-- Tombol Aksi Tabungan, Cetak & Share WA -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <button class="btn btn-success btn-sm w-100" onclick="openModalTx('setor')">
+                            <button class="btn btn-success btn-sm w-100 btn-action-touch" onclick="openModalTx('setor')">
                                 <i class="bi bi-arrow-down-left-circle me-1"></i> Setor Tunai
                             </button>
                         </div>
                         <div class="col-6">
-                            <button class="btn btn-danger btn-sm w-100" onclick="openModalTx('tarik')">
+                            <button class="btn btn-danger btn-sm w-100 btn-action-touch" onclick="openModalTx('tarik')">
                                 <i class="bi bi-arrow-up-right-circle me-1"></i> Tarik Tunai
                             </button>
                         </div>
@@ -536,7 +570,7 @@
                             <label class="form-label small fw-semibold">Keterangan (Opsional)</label>
                             <input type="text" id="txKet" class="form-control form-control-sm" placeholder="Contoh: Tabungan mingguan">
                         </div>
-                        <button type="submit" id="btnSubmitTx" class="btn btn-success w-100 rounded-pill">Proses Transaksi</button>
+                        <button type="submit" id="btnSubmitTx" class="btn btn-success w-100 rounded-pill btn-action-touch">Proses Transaksi</button>
                     </form>
                 </div>
             </div>
@@ -562,7 +596,7 @@
                             <label class="form-label small fw-semibold">Keterangan</label>
                             <input type="text" id="editTxKet" class="form-control form-control-sm">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-action-touch">Simpan Perubahan</button>
                     </form>
                 </div>
             </div>
@@ -589,14 +623,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- SECURITY & PIN MANAGEMENT ---
+        // --- 1. ANTI-PHISHING & ANTI-FRAMEJACKING ---
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+
+        // --- 2. SECURITY & PIN MANAGEMENT STORE ---
         const DEFAULT_PIN = "kamunanyak";
         const DEFAULT_SEC_QUESTION = "Siapa nama pembuat aplikasi ini?";
         const DEFAULT_SEC_ANSWER = "ari gpm";
+        const DEFAULT_SEC_PHRASE = "Tabungan Resmi Siswa";
 
         let appPin = localStorage.getItem('ym_pin') || DEFAULT_PIN;
         let secQuestion = localStorage.getItem('ym_sec_q') || DEFAULT_SEC_QUESTION;
         let secAnswer = localStorage.getItem('ym_sec_a') || DEFAULT_SEC_ANSWER;
+        let secPhrase = localStorage.getItem('ym_sec_phrase') || DEFAULT_SEC_PHRASE;
+
+        function updateSecurityBadgeUI() {
+            document.getElementById('secPhraseDisplay').innerText = secPhrase;
+        }
 
         function verifyPin(e) {
             e.preventDefault();
@@ -607,15 +652,43 @@
                 document.getElementById('pinLockOverlay').style.display = 'none';
                 document.getElementById('inputPinLock').value = '';
                 errEl.classList.add('d-none');
+                startIdleTimer();
             } else {
+                errEl.innerText = 'PIN salah! Silakan coba lagi.';
+                errEl.className = 'small text-danger mt-1';
                 errEl.classList.remove('d-none');
             }
         }
 
+        function lockAppManually(reason = '') {
+            stopIdleTimer();
+            stopQRScanner();
+            const overlay = document.getElementById('pinLockOverlay');
+            overlay.style.display = 'flex';
+            document.getElementById('inputPinLock').value = '';
+            updateSecurityBadgeUI();
+
+            const errEl = document.getElementById('pinErrorMsg');
+            if (reason) {
+                errEl.innerText = reason;
+                errEl.className = 'small text-warning mt-1 fw-bold';
+                errEl.classList.remove('d-none');
+            } else {
+                errEl.classList.add('d-none');
+            }
+        }
+
+        // --- 3. REVISI FITUR LUPA PIN ---
         function openModalLupaPin() {
             document.getElementById('txtLupaPinQuestion').innerText = secQuestion;
             document.getElementById('formLupaPin').reset();
-            new bootstrap.Modal(document.getElementById('modalLupaPin')).show();
+            
+            const modalEl = document.getElementById('modalLupaPin');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) {
+                modalObj = new bootstrap.Modal(modalEl);
+            }
+            modalObj.show();
         }
 
         function processLupaPin(e) {
@@ -630,7 +703,7 @@
             }
 
             if (newPin.length < 4) {
-                showAlert('PIN baru minimal harus 4 karakter!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
+                showAlert('PIN baru minimal 4 karakter!', 'Gagal Reset', 'bi-exclamation-circle text-warning');
                 return;
             }
 
@@ -642,13 +715,17 @@
             appPin = newPin;
             localStorage.setItem('ym_pin', appPin);
 
-            bootstrap.Modal.getInstance(document.getElementById('modalLupaPin')).hide();
-            showAlert('PIN berhasil diubah! Silakan masuk dengan PIN baru Anda.', 'Sukses', 'bi-check-circle text-success');
+            const modalEl = document.getElementById('modalLupaPin');
+            const modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (modalObj) modalObj.hide();
+
+            showAlert('PIN berhasil diperbarui! Silakan masuk dengan PIN baru Anda.', 'Pemulihan Sukses', 'bi-check-circle text-success');
         }
 
         function openModalUbahPin() {
             document.getElementById('formUbahPin').reset();
             document.getElementById('inputQuestionSet').value = secQuestion;
+            document.getElementById('inputSecPhraseSet').value = secPhrase;
             new bootstrap.Modal(document.getElementById('modalUbahPin')).show();
         }
 
@@ -656,6 +733,7 @@
             e.preventDefault();
             const pinLama = document.getElementById('inputPinLama').value.trim();
             const pinBaru = document.getElementById('inputPinBaruSet').value.trim();
+            const newPhrase = document.getElementById('inputSecPhraseSet').value.trim();
             const newQuestion = document.getElementById('inputQuestionSet').value.trim();
             const newAnswer = document.getElementById('inputAnswerSet').value.trim();
 
@@ -670,18 +748,57 @@
             }
 
             appPin = pinBaru;
+            secPhrase = newPhrase;
             secQuestion = newQuestion;
             secAnswer = newAnswer;
 
             localStorage.setItem('ym_pin', appPin);
+            localStorage.setItem('ym_sec_phrase', secPhrase);
             localStorage.setItem('ym_sec_q', secQuestion);
             localStorage.setItem('ym_sec_a', secAnswer);
 
+            updateSecurityBadgeUI();
             bootstrap.Modal.getInstance(document.getElementById('modalUbahPin')).hide();
-            showAlert('PIN dan Pertanyaan Keamanan berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
+            showAlert('PIN, Frasa Anti-Phishing & Keamanan berhasil diperbarui!', 'Sukses', 'bi-check-circle text-success');
         }
 
-        // --- DATA STORE (LOCALSTORAGE 100%) ---
+        // --- 4. ANTI REFRESH, TAB SWITCH & AUTO LOGOUT ---
+        let idleTimer = null;
+        const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // 2 Menit Auto Logout
+
+        function resetIdleTimer() {
+            stopIdleTimer();
+            if (document.getElementById('pinLockOverlay').style.display === 'none') {
+                idleTimer = setTimeout(() => {
+                    lockAppManually('Otomatis terkunci karena tidak ada aktivitas.');
+                }, IDLE_TIMEOUT_MS);
+            }
+        }
+
+        function startIdleTimer() {
+            resetIdleTimer();
+            ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach(evt => {
+                window.addEventListener(evt, resetIdleTimer, { passive: true });
+            });
+        }
+
+        function stopIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+        }
+
+        // Kunci saat Berpindah Tab atau Aplikasi di-minimize
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                lockAppManually('Aplikasi otomatis terkunci demi keamanan.');
+            }
+        });
+
+        // Kunci saat Halaman di-refresh / ditutup
+        window.addEventListener('beforeunload', () => {
+            stopQRScanner();
+        });
+
+        // --- 5. DATA STORE (LOCALSTORAGE 100%) ---
         let state = {
             siswa: JSON.parse(localStorage.getItem('ym_siswa')) || [],
             transaksi: JSON.parse(localStorage.getItem('ym_transaksi')) || []
@@ -714,8 +831,11 @@
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
             document.getElementById('alertIcon').className = `bi ${icon} fs-1 mb-2 d-block`;
-            const modal = new bootstrap.Modal(document.getElementById('customAlertModal'));
-            modal.show();
+            
+            const modalEl = document.getElementById('customAlertModal');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) modalObj = new bootstrap.Modal(modalEl);
+            modalObj.show();
         }
 
         function showConfirm(message, onConfirm, title = 'Konfirmasi') {
@@ -723,14 +843,16 @@
             document.getElementById('confirmMessage').innerText = message;
             const okBtn = document.getElementById('confirmOkBtn');
             
-            const modal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+            const modalEl = document.getElementById('customConfirmModal');
+            let modalObj = bootstrap.Modal.getInstance(modalEl);
+            if (!modalObj) modalObj = new bootstrap.Modal(modalEl);
             
             okBtn.onclick = function() {
-                modal.hide();
+                modalObj.hide();
                 onConfirm();
             };
             
-            modal.show();
+            modalObj.show();
         }
 
         // --- DASHBOARD RENDER ---
@@ -772,7 +894,7 @@
             });
         }
 
-        // --- MANAJEMEN SISWA & REVISI EDIT/HAPUS ---
+        // --- MANAJEMEN SISWA ---
         function renderSiswaList() {
             const container = document.getElementById('siswaList');
             const keyword = document.getElementById('searchSiswaInput').value.toLowerCase();
@@ -913,7 +1035,7 @@
 
             document.getElementById('qrCodeContainer').classList.add('d-none');
 
-            // Render Tx History dengan Aksi Edit & Hapus Per Transaksi
+            // Render Tx History
             const historyContainer = document.getElementById('siswaTxHistory');
             historyContainer.innerHTML = '';
             const listTx = state.transaksi.filter(t => t.siswaId === siswaId).reverse();
@@ -1024,7 +1146,7 @@
                     return;
                 }
                 siswa.saldo += selisih;
-            } else { // tarik
+            } else {
                 if (siswa.saldo - selisih < 0) {
                     showAlert('Saldo siswa tidak mencukupi untuk penarikan sebesar ini!', 'Gagal Edit', 'bi-exclamation-triangle text-danger');
                     return;
@@ -1121,11 +1243,11 @@
             
             if (tipe === 'setor') {
                 document.getElementById('modalTxTitle').innerText = 'Setor Tunai Tabungan';
-                btn.className = 'btn btn-success w-100 rounded-pill';
+                btn.className = 'btn btn-success w-100 rounded-pill btn-action-touch';
                 btn.innerText = 'Proses Setor Tunai';
             } else {
                 document.getElementById('modalTxTitle').innerText = 'Tarik Tunai Tabungan';
-                btn.className = 'btn btn-danger w-100 rounded-pill';
+                btn.className = 'btn btn-danger w-100 rounded-pill btn-action-touch';
                 btn.innerText = 'Proses Tarik Tunai';
             }
 
@@ -1214,6 +1336,7 @@
                 state: state,
                 security: {
                     pin: appPin,
+                    sec_phrase: secPhrase,
                     sec_q: secQuestion,
                     sec_a: secAnswer
                 }
@@ -1243,13 +1366,16 @@
                             state = importedState;
                             if (imported.security) {
                                 appPin = imported.security.pin || appPin;
+                                secPhrase = imported.security.sec_phrase || secPhrase;
                                 secQuestion = imported.security.sec_q || secQuestion;
                                 secAnswer = imported.security.sec_a || secAnswer;
                                 localStorage.setItem('ym_pin', appPin);
+                                localStorage.setItem('ym_sec_phrase', secPhrase);
                                 localStorage.setItem('ym_sec_q', secQuestion);
                                 localStorage.setItem('ym_sec_a', secAnswer);
                             }
                             saveData();
+                            updateSecurityBadgeUI();
                             showAlert('Data berhasil dipulihkan dari backup!', 'Import Berhasil', 'bi-check-circle text-success');
                             switchTab('sec-beranda');
                         }, 'Import Backup');
@@ -1313,6 +1439,7 @@
         });
 
         // Init Load
+        updateSecurityBadgeUI();
         renderDashboard();
     </script>
 </body>
