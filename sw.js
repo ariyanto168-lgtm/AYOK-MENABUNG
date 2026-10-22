@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yok-menabung-v1.0.2';
+const CACHE_NAME = 'yok-menabung-v1.0.3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -39,7 +39,7 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch Event (Cache-First dengan Network Fallback)
+// Fetch Event
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
@@ -47,7 +47,6 @@ self.addEventListener('fetch', (e) => {
         return cachedResponse;
       }
       return fetch(e.request).then((response) => {
-        // Cek jika response valid
         if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
@@ -57,7 +56,6 @@ self.addEventListener('fetch', (e) => {
         });
         return response;
       }).catch(() => {
-        // Fallback jika tidak ada koneksi internet
         return caches.match('./index.html');
       });
     })
